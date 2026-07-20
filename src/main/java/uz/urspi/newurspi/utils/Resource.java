@@ -1,0 +1,6 @@
+package uz.urspi.newurspi.utils;
+
+public enum Resource {
+    USER,
+    ROLE,
+}
