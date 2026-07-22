@@ -1,7 +1,6 @@
 package uz.urspi.newurspi.group.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,9 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.urspi.newurspi.group.dto.GroupDTO;
+import uz.urspi.newurspi.group.response.GroupListResponseApi;
 import uz.urspi.newurspi.group.response.GroupResponse;
+import uz.urspi.newurspi.group.response.GroupResponseApi;
 import uz.urspi.newurspi.group.service.GroupService;
 import uz.urspi.newurspi.utils.RestApiResponse;
+import uz.urspi.newurspi.utils.VoidApiResponse;
 
 import java.util.List;
 
@@ -32,10 +34,10 @@ public class GroupController {
     @ApiResponse(responseCode = "201",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = GroupResponse.class)
+                    schema = @Schema(implementation = GroupResponseApi.class)
             )
     )
-    public ResponseEntity<?> create(@Valid @RequestBody GroupDTO dto) {
+    public ResponseEntity<RestApiResponse<GroupResponse>> create(@Valid @RequestBody GroupDTO dto) {
         GroupResponse response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 RestApiResponse.<GroupResponse>builder()
@@ -51,9 +53,9 @@ public class GroupController {
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = GroupResponse.class))
+                    schema = @Schema(implementation = GroupListResponseApi.class)
             ))
-    public ResponseEntity<?> fetchAllGroups() {
+    public ResponseEntity<RestApiResponse<List<GroupResponse>>> fetchAllGroups() {
         return ResponseEntity.ok().body(
                 RestApiResponse.<List<GroupResponse>>builder()
                         .message("All groups fetched success")
@@ -68,9 +70,9 @@ public class GroupController {
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = GroupResponse.class))
+                    schema = @Schema(implementation = GroupListResponseApi.class)
             ))
-    public ResponseEntity<?> fetchByFacultyId(@PathVariable Long facultyId) {
+    public ResponseEntity<RestApiResponse<List<GroupResponse>>> fetchByFacultyId(@PathVariable Long facultyId) {
         return ResponseEntity.ok().body(
                 RestApiResponse.<List<GroupResponse>>builder()
                         .message("Groups fetched success")
@@ -85,9 +87,9 @@ public class GroupController {
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = GroupResponse.class))
+                    schema = @Schema(implementation = GroupListResponseApi.class)
             ))
-    public ResponseEntity<?> fetchByDepartmentId(@PathVariable Long departmentId) {
+    public ResponseEntity<RestApiResponse<List<GroupResponse>>> fetchByDepartmentId(@PathVariable Long departmentId) {
         return ResponseEntity.ok().body(
                 RestApiResponse.<List<GroupResponse>>builder()
                         .message("Groups fetched success")
@@ -102,9 +104,9 @@ public class GroupController {
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = GroupResponse.class)
+                    schema = @Schema(implementation = GroupResponseApi.class)
             ))
-    public ResponseEntity<?> findGroupById(@PathVariable Long id) {
+    public ResponseEntity<RestApiResponse<GroupResponse>> findGroupById(@PathVariable Long id) {
         return ResponseEntity.ok().body(
                 RestApiResponse.<GroupResponse>builder()
                         .message("Group found success")
@@ -119,9 +121,9 @@ public class GroupController {
     @ApiResponse(responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = GroupResponse.class)
+                    schema = @Schema(implementation = GroupResponseApi.class)
             ))
-    public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody GroupDTO dto) {
+    public ResponseEntity<RestApiResponse<GroupResponse>> update(@PathVariable Long id, @Valid @RequestBody GroupDTO dto) {
         GroupResponse response = service.update(id, dto);
         return ResponseEntity.ok(
                 RestApiResponse.<GroupResponse>builder()
@@ -134,7 +136,12 @@ public class GroupController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('GROUP_DELETE')")
     @Operation(summary = "Group delete", description = "Only users with GROUP_DELETE permission can use it.")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = VoidApiResponse.class)
+            ))
+    public ResponseEntity<RestApiResponse<Void>> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.ok().body(
                 RestApiResponse.<Void>builder().message("Group successfully deleted").build()
@@ -144,7 +151,12 @@ public class GroupController {
     @PutMapping("/change/status/{id}")
     @PreAuthorize("hasAuthority('GROUP_EDIT')")
     @Operation(summary = "Active or Disable group", description = "Only users with GROUP_EDIT permission can use it.")
-    public ResponseEntity<?> changeStatus(@PathVariable Long id) {
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = VoidApiResponse.class)
+            ))
+    public ResponseEntity<RestApiResponse<Void>> changeStatus(@PathVariable Long id) {
         service.activeOrDisabledGroup(id);
         return ResponseEntity.ok().body(
                 RestApiResponse.<Void>builder().message("Group status successfully changed").build()
