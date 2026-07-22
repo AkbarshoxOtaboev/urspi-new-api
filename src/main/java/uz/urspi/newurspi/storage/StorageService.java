@@ -1,0 +1,13 @@
+package uz.urspi.newurspi.storage;
+
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+
+public interface StorageService {
+
+    String uploadFile(MultipartFile file);
+
+    Resource downloadFile(String fileName);
+
+    void deleteFile(String fileName);
+}

@@ -1,12 +1,11 @@
 package uz.urspi.newurspi.utils;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 
@@ -28,32 +27,8 @@ public abstract class BaseEntity {
 
     @UpdateTimestamp(source = SourceType.DB)
     private LocalDateTime updatedAt;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     private Status status = Status.ACTIVE;
-
-    @Column(updatable = false)
     private String createdUsername;
-
-    @Column(updatable = false)
-    private Long createdUserId;
-
-    @PrePersist
-    protected void prePersist() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return;
-        }
-
-        Object principal = authentication.getPrincipal();
-
-//        if (principal instanceof CustomUserDetails userDetails) {
-//            this.createdUserId = userDetails.getId();
-//            this.createdUsername = userDetails.getUsername();
-//        }
-    }
-
 }
