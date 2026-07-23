@@ -6,5 +6,9 @@ public enum Resource {
     FACULTY,
     DEPARTMENT,
     GROUP,
+    DEGREE,
+    RANGE,
+    SEMESTER,
+    STUDY_YEAR,
     TEACHER,
 }
