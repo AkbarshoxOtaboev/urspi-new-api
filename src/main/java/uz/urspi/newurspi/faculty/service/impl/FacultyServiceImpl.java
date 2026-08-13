@@ -17,6 +17,7 @@ import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.faculty.response.FacultyResponse;
 import uz.urspi.newurspi.faculty.service.FacultyService;
+import uz.urspi.newurspi.utils.CacheNames;
 import uz.urspi.newurspi.utils.Status;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class FacultyServiceImpl implements FacultyService {
     private final FacultyMapper mapper;
 
     @Override
-    @CacheEvict(value = "faculties", allEntries = true)
+    @CacheEvict(value = {CacheNames.FACULTIES, CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.CREATE,
             entity = "Faculty"
@@ -57,7 +58,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    @Cacheable(value = "faculties", key = "#id")
+    @Cacheable(value = CacheNames.FACULTIES, key = "#id")
     @Auditable(
             action = AuditAction.READ,
             entity = "Faculty"
@@ -68,7 +69,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    @Cacheable(value = "faculties")
+    @Cacheable(value = CacheNames.FACULTIES, key = "'all'")
     @Auditable(
             action = AuditAction.READ,
             entity = "Faculty"
@@ -79,7 +80,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    @CacheEvict(value = "faculties", key = "#id")
+    @CacheEvict(value = {CacheNames.FACULTIES, CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Faculty"
@@ -102,7 +103,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    @CacheEvict(value = "faculties", key = "#id")
+    @CacheEvict(value = {CacheNames.FACULTIES, CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.DELETE,
             entity = "Faculty"
@@ -114,7 +115,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    @CacheEvict(value = "faculties", key = "#id")
+    @CacheEvict(value = {CacheNames.FACULTIES, CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Faculty"

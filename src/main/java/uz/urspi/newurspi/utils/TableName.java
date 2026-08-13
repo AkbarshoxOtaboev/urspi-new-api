@@ -8,7 +8,8 @@ public interface TableName {
     String AUDIT_LOGS = "audit_logs";
     String FACULTIES = "faculties";
     String DEPARTMENTS = "departments";
-    String GROUPS = "groups";
+    String POSITIONS = "positions";
+    String ACADEMIC_DEGREES = "academic_degrees";
     String DEGREES = "degrees";
     String RANGES = "ranges";
     String STUDY_YEARS = "study_years";

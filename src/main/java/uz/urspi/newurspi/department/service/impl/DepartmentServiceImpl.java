@@ -19,6 +19,7 @@ import uz.urspi.newurspi.exceptions.BadRequestException;
 import uz.urspi.newurspi.exceptions.ResourceNotFoundException;
 import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
+import uz.urspi.newurspi.utils.CacheNames;
 import uz.urspi.newurspi.utils.Status;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentMapper mapper;
 
     @Override
-    @CacheEvict(value = "departments", allEntries = true)
+    @CacheEvict(value = {CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.CREATE,
             entity = "Department"
@@ -62,7 +63,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @Cacheable(value = "departments", key = "#id")
+    @Cacheable(value = CacheNames.DEPARTMENTS, key = "#id")
     @Auditable(
             action = AuditAction.READ,
             entity = "Department"
@@ -73,7 +74,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @Cacheable(value = "departments")
+    @Cacheable(value = CacheNames.DEPARTMENTS, key = "'all'")
     @Auditable(
             action = AuditAction.READ,
             entity = "Department"
@@ -84,6 +85,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.DEPARTMENTS, key = "'faculty:' + #facultyId")
     @Auditable(
             action = AuditAction.READ,
             entity = "Department"
@@ -95,7 +97,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @CacheEvict(value = "departments", key = "#id")
+    @CacheEvict(value = {CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Department"
@@ -122,7 +124,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @CacheEvict(value = "departments", key = "#id")
+    @CacheEvict(value = {CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.DELETE,
             entity = "Department"
@@ -134,7 +136,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    @CacheEvict(value = "departments", key = "#id")
+    @CacheEvict(value = {CacheNames.DEPARTMENTS, CacheNames.TEACHERS}, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Department"

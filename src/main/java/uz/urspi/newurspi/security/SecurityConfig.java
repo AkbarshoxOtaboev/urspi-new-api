@@ -15,10 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
-import  uz.urspi.newurspi.security.jwt.JwtFilter;
-
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import uz.urspi.newurspi.configs.AppProperties;
+import uz.urspi.newurspi.security.jwt.JwtFilter;
 
 import java.util.List;
 
@@ -28,43 +28,32 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtAuthenticationFilter;
-    private final CustomLogoutHandler customLogoutHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final AppProperties appProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .cors(Customizer.withDefaults())
-
                 .authorizeHttpRequests(auth -> auth
-
-                        // auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        // swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-
-                        // static files
                         .requestMatchers(
                                 "/uploads/**",
                                 "/public/**"
                         ).permitAll()
-
                         .anyRequest()
                         .authenticated()
                 )
-
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -73,14 +62,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
-
-                .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
-                        .addLogoutHandler(customLogoutHandler)
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(200);
-                        })
-                );
+                .logout(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
@@ -99,14 +81,8 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // frontend URLs
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173"   // Vite
-        ));
-
+        configuration.setAllowedOrigins(appProperties.getCors().getAllowedOrigins());
         configuration.setAllowedMethods(List.of(
                 "GET",
                 "POST",
@@ -115,24 +91,16 @@ public class SecurityConfig {
                 "PATCH",
                 "OPTIONS"
         ));
-
         configuration.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
                 "Accept"
         ));
-
-        configuration.setExposedHeaders(List.of(
-                "Authorization"
-        ));
-
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }

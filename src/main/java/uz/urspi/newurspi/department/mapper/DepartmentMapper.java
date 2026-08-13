@@ -6,7 +6,9 @@ import uz.urspi.newurspi.department.Department;
 import uz.urspi.newurspi.department.response.DepartmentResponse;
 import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class DepartmentMapper {
     }
 
     public List<DepartmentResponse> toResponseList(List<Department> departments) {
-        return departments.stream().map(this::toResponse).toList();
+        return departments.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

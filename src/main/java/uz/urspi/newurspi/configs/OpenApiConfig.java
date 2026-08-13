@@ -1,4 +1,4 @@
-package  uz.urspi.newurspi.configs;
+package uz.urspi.newurspi.configs;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -14,14 +14,13 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI openAPI() {
-
         final String securitySchemeName = "Bearer Authentication";
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("WinCRM REST API")
+                        .title("URSPI REST API")
                         .version("v1.0.0")
-                        .description("WinCRM Backend REST API Documentation")
+                        .description("Urganch State Pedagogical Institute backend REST API")
                         .contact(new Contact()
                                 .name("Akbar Otaboev")
                                 .email("otaboevakbar96@gmail.com"))

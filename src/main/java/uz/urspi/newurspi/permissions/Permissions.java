@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import uz.urspi.newurspi.roles.Role;
 import uz.urspi.newurspi.utils.Action;
 import uz.urspi.newurspi.utils.BaseEntity;
@@ -24,9 +26,13 @@ import java.util.Set;
 @Table(name = TableName.PERMISSIONS)
 public class Permissions extends BaseEntity {
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 50, nullable = false)
     private Resource resource;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 50, nullable = false)
     private Action action;
 
     @Column(unique = true)

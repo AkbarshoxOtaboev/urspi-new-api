@@ -4,7 +4,9 @@ import org.springframework.stereotype.Component;
 import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.response.FacultyResponse;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class FacultyMapper {
@@ -25,6 +27,8 @@ public class FacultyMapper {
     }
 
     public List<FacultyResponse> toResponseList(List<Faculty> faculties) {
-        return faculties.stream().map(this::toResponse).toList();
+        return faculties.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,13 @@ import uz.urspi.newurspi.exceptions.ResourceNotFoundException;
 import uz.urspi.newurspi.permissions.Permissions;
 import uz.urspi.newurspi.permissions.PermissionsRepository;
 import uz.urspi.newurspi.permissions.PermissionsResponse;
+import uz.urspi.newurspi.utils.CacheNames;
 import uz.urspi.newurspi.utils.Status;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class RoleServiceImplement implements RoleService {
     private final PermissionsRepository permissionsRepository;
 
     @Override
-//    @CacheEvict(value = "roles", allEntries = true)
+    @CacheEvict(value = {CacheNames.ROLES, CacheNames.USERS}, allEntries = true)
     @Auditable(
             action = AuditAction.CREATE,
             entity = "Role"
@@ -56,18 +58,20 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-//    @Cacheable(value = "roles")
+    @Cacheable(value = CacheNames.ROLES, key = "'all'")
     @Auditable(
             action = AuditAction.READ,
             entity = "Role"
     )
     public List<RoleResponse> fetchAllRoles() {
         log.info("Fetch all roles");
-        return roleRepository.findAll().stream().map(this::mapRoleToRoleResponse).toList();
+        return roleRepository.findAll().stream()
+                .map(this::mapRoleToRoleResponse)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-//    @Cacheable(value = "roles", key = "#id")
+    @Cacheable(value = CacheNames.ROLES, key = "#id")
     @Auditable(
             action = AuditAction.READ,
             entity = "Role"
@@ -78,7 +82,7 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-//    @CacheEvict(value = "roles", key = "#id")
+    @CacheEvict(value = {CacheNames.ROLES, CacheNames.USERS, CacheNames.PERMISSIONS}, allEntries = true)
     @Auditable(
             action = AuditAction.DELETE,
             entity = "Role"
@@ -90,7 +94,7 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-//    @CachePut(value = "roles", key = "#result.id")
+    @CacheEvict(value = {CacheNames.ROLES, CacheNames.USERS}, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Role"
@@ -104,8 +108,7 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-    @Transactional
-//    @CacheEvict(value = {"roles", "permissions"}, allEntries = true)
+    @CacheEvict(value = CacheNames.PERMISSIONS, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Role"
@@ -128,8 +131,7 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-    @Transactional
-//    @CacheEvict(value = {"roles", "permissions"}, allEntries = true)
+    @CacheEvict(value = CacheNames.PERMISSIONS, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "Role"
@@ -152,23 +154,23 @@ public class RoleServiceImplement implements RoleService {
     }
 
     @Override
-//    @Cacheable(value = "permissions" ,key = "#roleId")
+    @Cacheable(value = CacheNames.PERMISSIONS, key = "#roleId")
     public List<PermissionsResponse> fetchPermissionsByRoleId(Long roleId) {
         log.info("Fetch all permissions by role id {}", roleId);
         return permissionsRepository.findAllByRoleId(roleId)
                 .stream()
                 .map(this::mapToPermissionsToPermissionsResponse)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-//    @Cacheable(value = "permissions")
+    @Cacheable(value = CacheNames.PERMISSIONS, key = "'all'")
     public List<PermissionsResponse> fetchAllPermissions() {
         log.info("Fetch all permissions");
         return permissionsRepository.findAll()
                 .stream()
                 .map(this::mapToPermissionsToPermissionsResponse)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private RoleResponse mapRoleToRoleResponse(Role role){

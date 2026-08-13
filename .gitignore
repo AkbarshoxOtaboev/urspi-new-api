@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local / runtime ###
+.env
+.env.local
+uploads/
+application-local.yml

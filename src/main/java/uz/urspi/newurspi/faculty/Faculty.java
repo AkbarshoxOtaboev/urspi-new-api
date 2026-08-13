@@ -10,7 +10,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLRestriction;
 import uz.urspi.newurspi.department.Department;
-import uz.urspi.newurspi.group.Group;
+import uz.urspi.newurspi.teacher.Teacher;
 import uz.urspi.newurspi.utils.BaseEntity;
 import uz.urspi.newurspi.utils.TableName;
 
@@ -33,5 +33,5 @@ public class Faculty extends BaseEntity {
     private List<Department> departments;
 
     @OneToMany(mappedBy = "faculty")
-    private List<Group> groups;
+    private List<Teacher> teachers;
 }

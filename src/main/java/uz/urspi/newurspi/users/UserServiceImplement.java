@@ -17,8 +17,10 @@ import uz.urspi.newurspi.roles.Role;
 import uz.urspi.newurspi.roles.RoleRepository;
 import uz.urspi.newurspi.roles.RoleResponse;
 import uz.urspi.newurspi.storage.StorageService;
+import uz.urspi.newurspi.utils.CacheNames;
 import uz.urspi.newurspi.utils.Status;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +38,7 @@ public class UserServiceImplement implements UserService  {
     private final StorageService storageService;
 
     @Override
-    @CacheEvict(value = "users", allEntries = true)
+    @CacheEvict(value = CacheNames.USERS, allEntries = true)
     @Auditable(
             action = AuditAction.CREATE,
             entity = "User"
@@ -77,7 +79,7 @@ public class UserServiceImplement implements UserService  {
     }
 
     @Override
-    @Cacheable(value = "users", key = "#id")
+    @Cacheable(value = CacheNames.USERS, key = "#id")
     @Auditable(
             action = AuditAction.READ,
             entity = "User"
@@ -88,18 +90,20 @@ public class UserServiceImplement implements UserService  {
     }
 
     @Override
-    @Cacheable(value = "users")
+    @Cacheable(value = CacheNames.USERS, key = "'all'")
     @Auditable(
             action = AuditAction.READ,
             entity = "User"
     )
     public List<UserResponse> fetchAllUsers() {
         log.info("Fetch all users");
-        return repository.findAll().stream().map(this::mapUserToUserResponse).toList();
+        return repository.findAll().stream()
+                .map(this::mapUserToUserResponse)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#id")
+    @CacheEvict(value = CacheNames.USERS, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "User"
@@ -137,7 +141,7 @@ public class UserServiceImplement implements UserService  {
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#id")
+    @CacheEvict(value = CacheNames.USERS, allEntries = true)
     @Auditable(
             action = AuditAction.DELETE,
             entity = "User"
@@ -150,7 +154,7 @@ public class UserServiceImplement implements UserService  {
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#id")
+    @CacheEvict(value = CacheNames.USERS, allEntries = true)
     @Auditable(
             action = AuditAction.UPDATE,
             entity = "User"
@@ -177,7 +181,7 @@ public class UserServiceImplement implements UserService  {
                 .role(
                         user.getRoles().stream()
                                 .map(this::mapRoleToRoleResponse)
-                                .collect(Collectors.toSet()))
+                                .collect(Collectors.toCollection(HashSet::new)))
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updateAt(user.getUpdatedAt())
