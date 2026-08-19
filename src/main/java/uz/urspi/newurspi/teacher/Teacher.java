@@ -24,7 +24,10 @@ import uz.urspi.newurspi.utils.TableName;
 @SuperBuilder
 public class Teacher extends BaseEntity {
     @Column(nullable = false)
-    private String fullName;
+    private String fullNameUz;
+
+    private String fullNameRu;
+    private String fullNameEn;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -34,6 +37,9 @@ public class Teacher extends BaseEntity {
 
     private String photoLink;
     private String cvLink;
+
+    @Column(columnDefinition = "integer default 0")
+    private Integer sortOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id", nullable = false)

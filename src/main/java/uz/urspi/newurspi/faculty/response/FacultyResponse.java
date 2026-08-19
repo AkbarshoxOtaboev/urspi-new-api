@@ -19,8 +19,13 @@ import java.time.LocalDateTime;
 public class FacultyResponse {
     private Long id;
     private String code;
-    private String name;
-    private String description;
+    private String logoLink;
+    private String nameUz;
+    private String nameRu;
+    private String nameEn;
+    private String descriptionUz;
+    private String descriptionRu;
+    private String descriptionEn;
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

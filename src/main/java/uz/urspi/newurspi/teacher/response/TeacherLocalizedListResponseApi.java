@@ -1,0 +1,10 @@
+package uz.urspi.newurspi.teacher.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import uz.urspi.newurspi.utils.RestApiResponse;
+
+import java.util.List;
+
+@Schema(description = "Rest api response wrapping a list of localized Teachers")
+public class TeacherLocalizedListResponseApi extends RestApiResponse<List<TeacherLocalizedResponse>> {
+}

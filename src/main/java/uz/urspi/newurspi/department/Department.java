@@ -23,8 +23,13 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class Department extends BaseEntity {
-    private String name;
-    private String description;
+    private String nameUz;
+    private String nameRu;
+    private String nameEn;
+    private String descriptionUz;
+    private String descriptionRu;
+    private String descriptionEn;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;

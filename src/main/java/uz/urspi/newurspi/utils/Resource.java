@@ -11,4 +11,9 @@ public enum Resource {
     DEGREE,
     STUDY_YEAR,
     TEACHER,
+    CENTER,
+    LEADER,
+    NEWS,
+    ANNOUNCEMENT,
+    EMPLOYEE,
 }

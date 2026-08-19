@@ -14,9 +14,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.urspi.newurspi.teacher.dto.TeacherDTO;
 import uz.urspi.newurspi.teacher.response.TeacherListResponseApi;
+import uz.urspi.newurspi.teacher.response.TeacherLocalizedListResponseApi;
+import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherResponse;
 import uz.urspi.newurspi.teacher.response.TeacherResponseApi;
 import uz.urspi.newurspi.teacher.service.TeacherService;
+import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.RestApiResponse;
 import uz.urspi.newurspi.utils.VoidApiResponse;
 
@@ -61,6 +64,25 @@ public class TeacherController {
                 RestApiResponse.<List<TeacherResponse>>builder()
                         .message("All teachers fetched success")
                         .data(service.fetchAllTeachers())
+                        .build()
+        );
+    }
+
+    @GetMapping("/lang/{lang}")
+    @PreAuthorize("hasAuthority('TEACHER_VIEW')")
+    @Operation(summary = "Fetch all teachers localized, sorted by sortOrder")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TeacherLocalizedListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<TeacherLocalizedResponse>>> fetchAllTeachersByLang(
+            @PathVariable Language lang
+    ) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<TeacherLocalizedResponse>>builder()
+                        .message("All teachers fetched success")
+                        .data(service.fetchAllTeachersByLang(lang))
                         .build()
         );
     }
@@ -131,6 +153,47 @@ public class TeacherController {
                 RestApiResponse.<List<TeacherResponse>>builder()
                         .message("Teachers fetched success")
                         .data(service.fetchByAcademicDegreeId(academicDegreeId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/faculty/{facultyId}/department/{departmentId}")
+    @PreAuthorize("hasAuthority('TEACHER_VIEW')")
+    @Operation(summary = "Fetch teachers by faculty and department, sorted by sortOrder")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TeacherListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<TeacherResponse>>> fetchByFacultyAndDepartment(
+            @PathVariable Long facultyId,
+            @PathVariable Long departmentId
+    ) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<TeacherResponse>>builder()
+                        .message("Teachers fetched success")
+                        .data(service.fetchByFacultyIdAndDepartmentId(facultyId, departmentId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/faculty/{facultyId}/department/{departmentId}/lang/{lang}")
+    @PreAuthorize("hasAuthority('TEACHER_VIEW')")
+    @Operation(summary = "Fetch teachers by faculty and department localized, sorted by sortOrder")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TeacherLocalizedListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<TeacherLocalizedResponse>>> fetchByFacultyAndDepartmentByLang(
+            @PathVariable Long facultyId,
+            @PathVariable Long departmentId,
+            @PathVariable Language lang
+    ) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<TeacherLocalizedResponse>>builder()
+                        .message("Teachers fetched success")
+                        .data(service.fetchByFacultyAndDepartmentByLang(facultyId, departmentId, lang))
                         .build()
         );
     }

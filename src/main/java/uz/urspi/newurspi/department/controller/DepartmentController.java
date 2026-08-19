@@ -13,9 +13,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.urspi.newurspi.department.dto.DepartmentDTO;
 import uz.urspi.newurspi.department.response.DepartmentListResponseApi;
+import uz.urspi.newurspi.department.response.DepartmentLocalizedListResponseApi;
+import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
 import uz.urspi.newurspi.department.response.DepartmentResponse;
 import uz.urspi.newurspi.department.response.DepartmentResponseApi;
 import uz.urspi.newurspi.department.service.DepartmentService;
+import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.RestApiResponse;
 import uz.urspi.newurspi.utils.VoidApiResponse;
 
@@ -77,6 +80,39 @@ public class DepartmentController {
                 RestApiResponse.<List<DepartmentResponse>>builder()
                         .message("Departments fetched success")
                         .data(service.fetchByFacultyId(facultyId))
+                        .build()
+        );
+    }
+
+    @GetMapping("/lang/{lang}")
+    @Operation(summary = "Fetch all departments by language", description = "Public endpoint for localized departments.")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = DepartmentLocalizedListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<DepartmentLocalizedResponse>>> fetchAllDepartmentsByLang(@PathVariable Language lang) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<DepartmentLocalizedResponse>>builder()
+                        .message("All departments fetched success")
+                        .data(service.fetchAllDepartmentsByLang(lang))
+                        .build()
+        );
+    }
+
+    @GetMapping("/faculty/{facultyId}/lang/{lang}")
+    @Operation(summary = "Fetch departments by faculty id and language", description = "Public endpoint for localized departments by faculty.")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = DepartmentLocalizedListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<DepartmentLocalizedResponse>>> fetchByFacultyIdAndLang(
+            @PathVariable Long facultyId, @PathVariable Language lang) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<DepartmentLocalizedResponse>>builder()
+                        .message("Departments fetched success")
+                        .data(service.fetchByFacultyIdAndLang(facultyId, lang))
                         .build()
         );
     }

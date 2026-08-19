@@ -19,8 +19,12 @@ import java.time.LocalDateTime;
 @Schema(description = "Department response")
 public class DepartmentResponse {
     private Long id;
-    private String name;
-    private String description;
+    private String nameUz;
+    private String nameRu;
+    private String nameEn;
+    private String descriptionUz;
+    private String descriptionRu;
+    private String descriptionEn;
     private FacultyResponse faculty;
     private Status status;
     private LocalDateTime createdAt;

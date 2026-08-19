@@ -13,9 +13,15 @@ import org.springframework.web.multipart.MultipartFile;
 @Schema(description = "Teacher create/update dto")
 public class TeacherDTO {
 
-    @NotEmpty(message = "Full name cannot be empty")
-    @Schema(description = "To'liq ism", example = "Aliyev Vali G'aniyevich")
-    private String fullName;
+    @NotEmpty(message = "Full name (uz) cannot be empty")
+    @Schema(description = "To'liq ism (uz)", example = "Aliyev Vali G'aniyevich")
+    private String fullNameUz;
+
+    @Schema(description = "To'liq ism (ru)", example = "Алиев Вали Ганиевич")
+    private String fullNameRu;
+
+    @Schema(description = "To'liq ism (en)", example = "Aliyev Vali Ganiyevich")
+    private String fullNameEn;
 
     @NotEmpty(message = "Phone number cannot be empty")
     @Schema(description = "Telefon raqam", example = "+998901234567")
@@ -31,6 +37,9 @@ public class TeacherDTO {
 
     @Schema(description = "CV fayl")
     private MultipartFile cv;
+
+    @Schema(description = "Saralash tartibi", example = "0")
+    private Integer sortOrder;
 
     @NotNull(message = "Faculty is required")
     @Schema(description = "Fakultet ID", example = "1")

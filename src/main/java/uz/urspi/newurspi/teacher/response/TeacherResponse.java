@@ -22,11 +22,14 @@ import java.time.LocalDateTime;
 @Schema(description = "Teacher response")
 public class TeacherResponse {
     private Long id;
-    private String fullName;
+    private String fullNameUz;
+    private String fullNameRu;
+    private String fullNameEn;
     private String phoneNumber;
     private String email;
     private String photoLink;
     private String cvLink;
+    private Integer sortOrder;
     private FacultyResponse faculty;
     private DepartmentResponse department;
     private PositionResponse position;

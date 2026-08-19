@@ -7,7 +7,9 @@ import uz.urspi.newurspi.department.mapper.DepartmentMapper;
 import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 import uz.urspi.newurspi.position.mapper.PositionMapper;
 import uz.urspi.newurspi.teacher.Teacher;
+import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherResponse;
+import uz.urspi.newurspi.utils.Language;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +29,14 @@ public class TeacherMapper {
         }
         return TeacherResponse.builder()
                 .id(teacher.getId())
-                .fullName(teacher.getFullName())
+                .fullNameUz(teacher.getFullNameUz())
+                .fullNameRu(teacher.getFullNameRu())
+                .fullNameEn(teacher.getFullNameEn())
                 .phoneNumber(teacher.getPhoneNumber())
                 .email(teacher.getEmail())
                 .photoLink(teacher.getPhotoLink())
                 .cvLink(teacher.getCvLink())
+                .sortOrder(teacher.getSortOrder())
                 .faculty(facultyMapper.toResponse(teacher.getFaculty()))
                 .department(departmentMapper.toResponse(teacher.getDepartment()))
                 .position(positionMapper.toResponse(teacher.getPosition()))
@@ -45,6 +50,35 @@ public class TeacherMapper {
     public List<TeacherResponse> toResponseList(List<Teacher> teachers) {
         return teachers.stream()
                 .map(this::toResponse)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public TeacherLocalizedResponse toLocalizedResponse(Teacher teacher, Language lang) {
+        if (teacher == null) {
+            return null;
+        }
+        String fullName = switch (lang) {
+            case ru -> teacher.getFullNameRu() != null ? teacher.getFullNameRu() : teacher.getFullNameUz();
+            case en -> teacher.getFullNameEn() != null ? teacher.getFullNameEn() : teacher.getFullNameUz();
+            default -> teacher.getFullNameUz();
+        };
+        return TeacherLocalizedResponse.builder()
+                .id(teacher.getId())
+                .fullName(fullName)
+                .phoneNumber(teacher.getPhoneNumber())
+                .email(teacher.getEmail())
+                .photoLink(teacher.getPhotoLink())
+                .cvLink(teacher.getCvLink())
+                .sortOrder(teacher.getSortOrder())
+                .status(teacher.getStatus())
+                .createdAt(teacher.getCreatedAt())
+                .updatedAt(teacher.getUpdatedAt())
+                .build();
+    }
+
+    public List<TeacherLocalizedResponse> toLocalizedResponseList(List<Teacher> teachers, Language lang) {
+        return teachers.stream()
+                .map(t -> toLocalizedResponse(t, lang))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

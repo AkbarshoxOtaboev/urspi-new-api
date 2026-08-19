@@ -13,6 +13,7 @@ import uz.urspi.newurspi.department.Department;
 import uz.urspi.newurspi.department.dto.DepartmentDTO;
 import uz.urspi.newurspi.department.mapper.DepartmentMapper;
 import uz.urspi.newurspi.department.repository.DepartmentRepository;
+import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
 import uz.urspi.newurspi.department.response.DepartmentResponse;
 import uz.urspi.newurspi.department.service.DepartmentService;
 import uz.urspi.newurspi.exceptions.BadRequestException;
@@ -20,6 +21,7 @@ import uz.urspi.newurspi.exceptions.ResourceNotFoundException;
 import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.utils.CacheNames;
+import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.Status;
 
 import java.util.List;
@@ -43,15 +45,19 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentResponse create(DepartmentDTO dto) {
         Faculty faculty = getFacultyOrThrow(dto.getFacultyId());
 
-        if (repository.existsByNameAndFacultyId(dto.getName(), dto.getFacultyId())) {
+        if (repository.existsByNameUzAndFacultyId(dto.getNameUz(), dto.getFacultyId())) {
             throw new BadRequestException("Department with this name already exists in the faculty");
         }
 
         String username = currentUsername();
 
         Department department = Department.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
+                .nameUz(dto.getNameUz())
+                .nameRu(dto.getNameRu())
+                .nameEn(dto.getNameEn())
+                .descriptionUz(dto.getDescriptionUz())
+                .descriptionRu(dto.getDescriptionRu())
+                .descriptionEn(dto.getDescriptionEn())
                 .faculty(faculty)
                 .status(Status.ACTIVE)
                 .createdUsername(username)
@@ -108,15 +114,19 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = getDepartmentOrThrow(id);
         Faculty faculty = getFacultyOrThrow(dto.getFacultyId());
 
-        boolean nameOrFacultyChanged = !department.getName().equalsIgnoreCase(dto.getName())
+        boolean nameOrFacultyChanged = !department.getNameUz().equalsIgnoreCase(dto.getNameUz())
                 || !department.getFaculty().getId().equals(dto.getFacultyId());
 
-        if (nameOrFacultyChanged && repository.existsByNameAndFacultyId(dto.getName(), dto.getFacultyId())) {
+        if (nameOrFacultyChanged && repository.existsByNameUzAndFacultyId(dto.getNameUz(), dto.getFacultyId())) {
             throw new BadRequestException("Department with this name already exists in the faculty");
         }
 
-        department.setName(dto.getName());
-        department.setDescription(dto.getDescription());
+        department.setNameUz(dto.getNameUz());
+        department.setNameRu(dto.getNameRu());
+        department.setNameEn(dto.getNameEn());
+        department.setDescriptionUz(dto.getDescriptionUz());
+        department.setDescriptionRu(dto.getDescriptionRu());
+        department.setDescriptionEn(dto.getDescriptionEn());
         department.setFaculty(faculty);
 
         Department updated = repository.save(department);
@@ -145,12 +155,35 @@ public class DepartmentServiceImpl implements DepartmentService {
         log.info("Disable or active department with id {}", id);
         Department department = getDepartmentOrThrow(id);
         if (department.getStatus() == Status.ACTIVE) {
-            log.info("Disabled department {}", department.getName());
+            log.info("Disabled department {}", department.getNameUz());
             department.setStatus(Status.DISABLED);
         } else if (department.getStatus() == Status.DISABLED) {
-            log.info("Activate department {}", department.getName());
+            log.info("Activate department {}", department.getNameUz());
             department.setStatus(Status.ACTIVE);
         }
+    }
+
+    @Override
+    @Cacheable(value = CacheNames.DEPARTMENTS, key = "'all:lang:' + #lang")
+    @Auditable(
+            action = AuditAction.READ,
+            entity = "Department"
+    )
+    public List<DepartmentLocalizedResponse> fetchAllDepartmentsByLang(Language lang) {
+        log.info("Fetch all departments by lang {}", lang);
+        return mapper.toLocalizedResponseList(repository.findAll(), lang);
+    }
+
+    @Override
+    @Cacheable(value = CacheNames.DEPARTMENTS, key = "'faculty:' + #facultyId + ':lang:' + #lang")
+    @Auditable(
+            action = AuditAction.READ,
+            entity = "Department"
+    )
+    public List<DepartmentLocalizedResponse> fetchByFacultyIdAndLang(Long facultyId, Language lang) {
+        log.info("Fetch departments by faculty id {} and lang {}", facultyId, lang);
+        getFacultyOrThrow(facultyId);
+        return mapper.toLocalizedResponseList(repository.findAllByFacultyId(facultyId), lang);
     }
 
     private Department getDepartmentOrThrow(Long id) {

@@ -13,4 +13,6 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
     List<Teacher> findAllByDepartmentId(Long departmentId);
     List<Teacher> findAllByPositionId(Long positionId);
     List<Teacher> findAllByAcademicDegreeId(Long academicDegreeId);
+    List<Teacher> findAllByOrderBySortOrderAsc();
+    List<Teacher> findAllByFacultyIdAndDepartmentIdOrderBySortOrderAsc(Long facultyId, Long departmentId);
 }

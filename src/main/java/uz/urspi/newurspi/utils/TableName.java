@@ -13,4 +13,9 @@ public interface TableName {
     String DEGREES = "degrees";
     String STUDY_YEARS = "study_years";
     String TEACHERS = "teachers";
+    String CENTERS = "centers";
+    String LEADERS = "leaders";
+    String NEWS = "news";
+    String ANNOUNCEMENTS = "announcements";
+    String EMPLOYEES = "employees";
 }

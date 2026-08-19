@@ -26,8 +26,13 @@ import java.util.List;
 @SuperBuilder
 public class Faculty extends BaseEntity {
     private String code;
-    private String name;
-    private String description;
+    private String nameUz;
+    private String nameRu;
+    private String nameEn;
+    private String descriptionUz;
+    private String descriptionRu;
+    private String descriptionEn;
+    private String logoLink;
 
     @OneToMany(mappedBy = "faculty")
     private List<Department> departments;

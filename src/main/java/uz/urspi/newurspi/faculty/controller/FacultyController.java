@@ -8,14 +8,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.urspi.newurspi.faculty.dto.FacultyDTO;
 import uz.urspi.newurspi.faculty.response.FacultyListResponseApi;
+import uz.urspi.newurspi.faculty.response.FacultyLocalizedListResponseApi;
+import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
 import uz.urspi.newurspi.faculty.response.FacultyResponse;
 import uz.urspi.newurspi.faculty.response.FacultyResponseApi;
 import uz.urspi.newurspi.faculty.service.FacultyService;
+import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.RestApiResponse;
 import uz.urspi.newurspi.utils.VoidApiResponse;
 
@@ -28,7 +32,7 @@ import java.util.List;
 public class FacultyController {
     private final FacultyService service;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('FACULTY_CREATE')")
     @Operation(summary = "Faculty create", description = "Only users with FACULTY_CREATE permission can use it.")
     @ApiResponse(responseCode = "201",
@@ -37,7 +41,7 @@ public class FacultyController {
                     schema = @Schema(implementation = FacultyResponseApi.class)
             )
     )
-    public ResponseEntity<RestApiResponse<FacultyResponse>> create(@Valid @RequestBody FacultyDTO dto) {
+    public ResponseEntity<RestApiResponse<FacultyResponse>> create(@Valid @ModelAttribute FacultyDTO dto) {
         FacultyResponse response = service.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 RestApiResponse.<FacultyResponse>builder()
@@ -64,6 +68,23 @@ public class FacultyController {
         );
     }
 
+    @GetMapping("/lang/{lang}")
+    @PreAuthorize("hasAuthority('FACULTY_VIEW')")
+    @Operation(summary = "Fetch all faculties by language", description = "Only users with FACULTY_VIEW permission can use it.")
+    @ApiResponse(responseCode = "200",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = FacultyLocalizedListResponseApi.class)
+            ))
+    public ResponseEntity<RestApiResponse<List<FacultyLocalizedResponse>>> fetchAllFacultiesByLang(@PathVariable Language lang) {
+        return ResponseEntity.ok().body(
+                RestApiResponse.<List<FacultyLocalizedResponse>>builder()
+                        .message("All faculties fetched success")
+                        .data(service.fetchAllFacultiesByLang(lang))
+                        .build()
+        );
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('FACULTY_VIEW')")
     @Operation(summary = "Fetch faculty by id", description = "Only users with FACULTY_VIEW permission can use it.")
@@ -81,7 +102,7 @@ public class FacultyController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('FACULTY_EDIT')")
     @Operation(summary = "Update faculty", description = "Only users with FACULTY_EDIT permission can use it.")
     @ApiResponse(responseCode = "200",
@@ -89,7 +110,7 @@ public class FacultyController {
                     mediaType = "application/json",
                     schema = @Schema(implementation = FacultyResponseApi.class)
             ))
-    public ResponseEntity<RestApiResponse<FacultyResponse>> update(@PathVariable Long id, @Valid @RequestBody FacultyDTO dto) {
+    public ResponseEntity<RestApiResponse<FacultyResponse>> update(@PathVariable Long id, @Valid @ModelAttribute FacultyDTO dto) {
         FacultyResponse response = service.update(id, dto);
         return ResponseEntity.ok(
                 RestApiResponse.<FacultyResponse>builder()

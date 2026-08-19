@@ -25,9 +25,11 @@ import uz.urspi.newurspi.teacher.Teacher;
 import uz.urspi.newurspi.teacher.dto.TeacherDTO;
 import uz.urspi.newurspi.teacher.mapper.TeacherMapper;
 import uz.urspi.newurspi.teacher.repository.TeacherRepository;
+import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherResponse;
 import uz.urspi.newurspi.teacher.service.TeacherService;
 import uz.urspi.newurspi.utils.CacheNames;
+import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.Status;
 
 import java.util.List;
@@ -60,11 +62,14 @@ public class TeacherServiceImpl implements TeacherService {
         AcademicDegree academicDegree = getAcademicDegreeOrThrow(dto.getAcademicDegreeId());
 
         Teacher teacher = Teacher.builder()
-                .fullName(dto.getFullName())
+                .fullNameUz(dto.getFullNameUz())
+                .fullNameRu(dto.getFullNameRu())
+                .fullNameEn(dto.getFullNameEn())
                 .phoneNumber(dto.getPhoneNumber())
                 .email(dto.getEmail())
                 .photoLink(storeFile(dto.getPhoto()))
                 .cvLink(storeFile(dto.getCv()))
+                .sortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0)
                 .faculty(faculty)
                 .department(department)
                 .position(position)
@@ -147,9 +152,12 @@ public class TeacherServiceImpl implements TeacherService {
         Position position = getPositionOrThrow(dto.getPositionId());
         AcademicDegree academicDegree = getAcademicDegreeOrThrow(dto.getAcademicDegreeId());
 
-        teacher.setFullName(dto.getFullName());
+        teacher.setFullNameUz(dto.getFullNameUz());
+        teacher.setFullNameRu(dto.getFullNameRu());
+        teacher.setFullNameEn(dto.getFullNameEn());
         teacher.setPhoneNumber(dto.getPhoneNumber());
         teacher.setEmail(dto.getEmail());
+        teacher.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : teacher.getSortOrder());
         teacher.setFaculty(faculty);
         teacher.setDepartment(department);
         teacher.setPosition(position);
@@ -181,12 +189,42 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("Disable or active teacher with id {}", id);
         Teacher teacher = getTeacherOrThrow(id);
         if (teacher.getStatus() == Status.ACTIVE) {
-            log.info("Disabled teacher {}", teacher.getFullName());
+            log.info("Disabled teacher {}", teacher.getFullNameUz());
             teacher.setStatus(Status.DISABLED);
         } else if (teacher.getStatus() == Status.DISABLED) {
-            log.info("Activate teacher {}", teacher.getFullName());
+            log.info("Activate teacher {}", teacher.getFullNameUz());
             teacher.setStatus(Status.ACTIVE);
         }
+    }
+
+    @Override
+    @Cacheable(value = CacheNames.TEACHERS, key = "'all:lang:' + #lang")
+    @Auditable(action = AuditAction.READ, entity = "Teacher")
+    public List<TeacherLocalizedResponse> fetchAllTeachersByLang(Language lang) {
+        log.info("Fetch all teachers by lang {}", lang);
+        return mapper.toLocalizedResponseList(repository.findAllByOrderBySortOrderAsc(), lang);
+    }
+
+    @Override
+    @Cacheable(value = CacheNames.TEACHERS, key = "'faculty:' + #facultyId + ':dept:' + #departmentId + ':lang:' + #lang")
+    @Auditable(action = AuditAction.READ, entity = "Teacher")
+    public List<TeacherLocalizedResponse> fetchByFacultyAndDepartmentByLang(Long facultyId, Long departmentId, Language lang) {
+        log.info("Fetch teachers by faculty {} and department {} lang {}", facultyId, departmentId, lang);
+        getFacultyOrThrow(facultyId);
+        getDepartmentOrThrow(departmentId);
+        return mapper.toLocalizedResponseList(
+                repository.findAllByFacultyIdAndDepartmentIdOrderBySortOrderAsc(facultyId, departmentId), lang);
+    }
+
+    @Override
+    @Cacheable(value = CacheNames.TEACHERS, key = "'faculty:' + #facultyId + ':dept:' + #departmentId")
+    @Auditable(action = AuditAction.READ, entity = "Teacher")
+    public List<TeacherResponse> fetchByFacultyIdAndDepartmentId(Long facultyId, Long departmentId) {
+        log.info("Fetch teachers by faculty {} and department {}", facultyId, departmentId);
+        getFacultyOrThrow(facultyId);
+        getDepartmentOrThrow(departmentId);
+        return mapper.toResponseList(
+                repository.findAllByFacultyIdAndDepartmentIdOrderBySortOrderAsc(facultyId, departmentId));
     }
 
     private Department resolveDepartment(Long departmentId, Faculty faculty) {
