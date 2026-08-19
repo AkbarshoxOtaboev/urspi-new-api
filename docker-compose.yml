@@ -1,0 +1,78 @@
+# Serverda:
+#   git clone <repo>
+#   cp .env.example .env
+#   nano .env
+#   docker compose up -d --build
+#
+# API: http://<server-ip>:8080
+# Swagger: http://<server-ip>:8080/swagger-ui.html
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Tashkent
+      POSTGRES_DB: ${POSTGRES_DB:-urspi_db}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - urspi
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    environment:
+      TZ: Asia/Tashkent
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - urspi
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: Asia/Tashkent
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-urspi_db}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FILE_UPLOAD_DIR: /app/uploads
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-8080}:8080"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - urspi
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+
+networks:
+  urspi:
+    driver: bridge

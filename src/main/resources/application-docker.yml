@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+app:
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
+    admin:
+      password: ${APP_ADMIN_PASSWORD}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://new.urspi.uz,https://new.urspi.uz}

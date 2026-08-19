@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -34,8 +35,15 @@ public class AppProperties {
     }
 
     @Getter
-    @Setter
     public static class Cors {
         private List<String> allowedOrigins = new ArrayList<>(List.of("http://localhost:5173"));
+
+        public void setAllowedOrigins(List<String> allowedOrigins) {
+            this.allowedOrigins = allowedOrigins.stream()
+                    .flatMap(value -> Arrays.stream(value.split(",")))
+                    .map(String::trim)
+                    .filter(origin -> !origin.isEmpty())
+                    .toList();
+        }
     }
 }
