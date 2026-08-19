@@ -1,0 +1,11 @@
+package uz.urspi.newurspi.permissions.response;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import uz.urspi.newurspi.permissions.PermissionsResponse;
+import uz.urspi.newurspi.utils.RestApiResponse;
+
+import java.util.List;
+
+@Schema(description = "Rest api response wrapping a list of Permissions")
+public class PermissionsListResponseApi extends RestApiResponse<List<PermissionsResponse>> {
+}

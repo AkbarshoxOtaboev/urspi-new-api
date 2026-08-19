@@ -11,8 +11,6 @@ public interface TableName {
     String POSITIONS = "positions";
     String ACADEMIC_DEGREES = "academic_degrees";
     String DEGREES = "degrees";
-    String RANGES = "ranges";
     String STUDY_YEARS = "study_years";
-    String SEMESTERS = "semesters";
     String TEACHERS = "teachers";
 }

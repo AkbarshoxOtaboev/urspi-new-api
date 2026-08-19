@@ -14,6 +14,7 @@ import uz.urspi.newurspi.exceptions.ResourceNotFoundException;
 import uz.urspi.newurspi.permissions.Permissions;
 import uz.urspi.newurspi.permissions.PermissionsRepository;
 import uz.urspi.newurspi.permissions.PermissionsResponse;
+import uz.urspi.newurspi.permissions.mapper.PermissionsMapper;
 import uz.urspi.newurspi.utils.CacheNames;
 import uz.urspi.newurspi.utils.Status;
 
@@ -30,6 +31,7 @@ public class RoleServiceImplement implements RoleService {
 
     private final RoleRepository roleRepository;
     private final PermissionsRepository permissionsRepository;
+    private final PermissionsMapper permissionsMapper;
 
     @Override
     @CacheEvict(value = {CacheNames.ROLES, CacheNames.USERS}, allEntries = true)
@@ -157,20 +159,7 @@ public class RoleServiceImplement implements RoleService {
     @Cacheable(value = CacheNames.PERMISSIONS, key = "#roleId")
     public List<PermissionsResponse> fetchPermissionsByRoleId(Long roleId) {
         log.info("Fetch all permissions by role id {}", roleId);
-        return permissionsRepository.findAllByRoleId(roleId)
-                .stream()
-                .map(this::mapToPermissionsToPermissionsResponse)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    @Override
-    @Cacheable(value = CacheNames.PERMISSIONS, key = "'all'")
-    public List<PermissionsResponse> fetchAllPermissions() {
-        log.info("Fetch all permissions");
-        return permissionsRepository.findAll()
-                .stream()
-                .map(this::mapToPermissionsToPermissionsResponse)
-                .collect(Collectors.toCollection(ArrayList::new));
+        return permissionsMapper.toResponseList(permissionsRepository.findAllByRoleId(roleId));
     }
 
     private RoleResponse mapRoleToRoleResponse(Role role){
@@ -181,12 +170,5 @@ public class RoleServiceImplement implements RoleService {
                 role.getCreatedAt(),
                 role.getUpdatedAt(),
                 role.getCreatedUsername());
-    }
-
-    private PermissionsResponse mapToPermissionsToPermissionsResponse(Permissions permissions){
-        return new PermissionsResponse(
-                permissions.getId(),
-                permissions.getName()
-        );
     }
 }

@@ -25,7 +25,7 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         dropIfExists("permissions_action_check");
         dropIfExists("permissions_status_check");
         deleteStalePermissions();
-        dropGroupsTable();
+        dropLeftoverTables();
     }
 
     private void dropIfExists(String constraintName) {
@@ -56,9 +56,11 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         }
     }
 
-    private void dropGroupsTable() {
+    private void dropLeftoverTables() {
         jdbcTemplate.execute("DROP TABLE IF EXISTS groups CASCADE");
-        log.info("Dropped leftover groups table if present");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS ranges CASCADE");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS semesters CASCADE");
+        log.info("Dropped leftover groups, ranges and semesters tables if present");
     }
 }
 

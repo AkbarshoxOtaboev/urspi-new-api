@@ -18,5 +18,4 @@ public interface PermissionsRepository extends JpaRepository<Permissions, Long> 
         where r.id = :roleId
     """)
     List<Permissions> findAllByRoleId(Long roleId);
-//    Optional<Permissions> findByName(String name);
 }

@@ -176,23 +176,4 @@ public class RoleController {
                         .build()
         );
     }
-
-    @GetMapping("/all/permissions")
-    @PreAuthorize("hasAuthority('ROLE_VIEW')")
-    @Operation(summary = "Fetch all permissions by role id", description ="Only users with ROLE_VIEW permission can fetch permissions from a role.")
-    @ApiResponse(responseCode = "200",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = PermissionsResponse.class))
-            )
-    )
-    public ResponseEntity<?> fetchAllPermissions(){
-        return ResponseEntity.ok().body(
-                RestApiResponse.<List<PermissionsResponse>>builder()
-                        .message("All permissions")
-                        .data(service.fetchAllPermissions())
-                        .build()
-        );
-    }
-
 }

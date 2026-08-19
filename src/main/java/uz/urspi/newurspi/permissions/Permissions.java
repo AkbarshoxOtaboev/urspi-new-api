@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import uz.urspi.newurspi.roles.Role;
 import uz.urspi.newurspi.utils.Action;
@@ -24,6 +25,7 @@ import java.util.Set;
 @NoArgsConstructor
 @SuperBuilder
 @Table(name = TableName.PERMISSIONS)
+@SQLRestriction("status <> 'DELETED' ")
 public class Permissions extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)

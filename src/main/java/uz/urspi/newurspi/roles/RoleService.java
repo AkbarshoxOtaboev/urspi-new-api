@@ -13,5 +13,4 @@ public interface RoleService {
     void setPermissionToRole(Long roleId, Long permissionId);
     void removePermissionFromRole(Long roleId, Long permissionId);
     List<PermissionsResponse> fetchPermissionsByRoleId(Long roleId);
-    List<PermissionsResponse> fetchAllPermissions();
 }
