@@ -27,7 +27,7 @@ public class NewsMapper {
                 .contentEn(news.getContentEn())
                 .author(news.getAuthor())
                 .mainImageLink(news.getMainImageLink())
-                .imageLinks(news.getImageLinks())
+                .imageLinks(copyImageLinks(news))
                 .status(news.getStatus())
                 .createdAt(news.getCreatedAt())
                 .updatedAt(news.getUpdatedAt())
@@ -44,11 +44,18 @@ public class NewsMapper {
                 .content(getLocalizedContent(news, lang))
                 .author(news.getAuthor())
                 .mainImageLink(news.getMainImageLink())
-                .imageLinks(news.getImageLinks())
+                .imageLinks(copyImageLinks(news))
                 .status(news.getStatus())
                 .createdAt(news.getCreatedAt())
                 .updatedAt(news.getUpdatedAt())
                 .build();
+    }
+
+    private List<String> copyImageLinks(News news) {
+        if (news.getImageLinks() == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(news.getImageLinks());
     }
 
     public List<NewsResponse> toResponseList(List<News> newsList) {

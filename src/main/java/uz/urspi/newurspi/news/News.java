@@ -38,7 +38,7 @@ public class News extends BaseEntity {
     private String author;
     private String mainImageLink;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "news_images", joinColumns = @JoinColumn(name = "news_id"))
     @Column(name = "image_link")
     private List<String> imageLinks = new ArrayList<>();
