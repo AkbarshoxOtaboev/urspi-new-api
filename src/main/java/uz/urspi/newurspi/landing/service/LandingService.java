@@ -6,6 +6,7 @@ import uz.urspi.newurspi.center.response.CenterLocalizedResponse;
 import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
 import uz.urspi.newurspi.employee.response.EmployeeLocalizedResponse;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
+import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
@@ -40,4 +41,8 @@ public interface LandingService {
     PageResponse<EmployeeLocalizedResponse> employees(Language lang, Long centerId, Pageable pageable);
 
     EmployeeLocalizedResponse employeeById(Long id, Language lang);
+
+    PageResponse<LeaderLocalizedResponse> leaders(Language lang, Pageable pageable);
+
+    LeaderLocalizedResponse leaderById(Long id, Language lang);
 }

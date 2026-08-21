@@ -17,6 +17,7 @@ import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
 import uz.urspi.newurspi.employee.response.EmployeeLocalizedResponse;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
+import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
@@ -79,6 +80,30 @@ public class LandingController {
                 .build());
     }
 
+    @GetMapping("/leaders")
+    @Operation(summary = "Rahbariyat (pageable + lang)")
+    public ResponseEntity<RestApiResponse<PageResponse<LeaderLocalizedResponse>>> leaders(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<LeaderLocalizedResponse>>builder()
+                .message("Leaders fetched successfully")
+                .data(landingService.leaders(lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/leaders/{id}")
+    @Operation(summary = "Rahbar ID bo'yicha")
+    public ResponseEntity<RestApiResponse<LeaderLocalizedResponse>> leaderById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<LeaderLocalizedResponse>builder()
+                .message("Leader fetched successfully")
+                .data(landingService.leaderById(id, lang))
+                .build());
+    }
+
     @GetMapping("/faculties")
     @Operation(summary = "Fakultetlar (pageable + lang)")
     public ResponseEntity<RestApiResponse<PageResponse<FacultyLocalizedResponse>>> faculties(
@@ -100,6 +125,32 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<FacultyLocalizedResponse>builder()
                 .message("Faculty fetched successfully")
                 .data(landingService.facultyById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/faculties/{facultyId}/departments")
+    @Operation(summary = "Fakultetga tegishli kafedralar")
+    public ResponseEntity<RestApiResponse<PageResponse<DepartmentLocalizedResponse>>> departmentsByFaculty(
+            @PathVariable Long facultyId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<DepartmentLocalizedResponse>>builder()
+                .message("Departments fetched successfully")
+                .data(landingService.departments(lang, facultyId, pageable))
+                .build());
+    }
+
+    @GetMapping("/faculties/{facultyId}/teachers")
+    @Operation(summary = "Fakultetga tegishli o'qituvchilar")
+    public ResponseEntity<RestApiResponse<PageResponse<TeacherLocalizedResponse>>> teachersByFaculty(
+            @PathVariable Long facultyId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<TeacherLocalizedResponse>>builder()
+                .message("Teachers fetched successfully")
+                .data(landingService.teachers(lang, facultyId, null, pageable))
                 .build());
     }
 
@@ -125,6 +176,33 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<DepartmentLocalizedResponse>builder()
                 .message("Department fetched successfully")
                 .data(landingService.departmentById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/departments/{departmentId}/teachers")
+    @Operation(summary = "Kafedraga tegishli o'qituvchilar")
+    public ResponseEntity<RestApiResponse<PageResponse<TeacherLocalizedResponse>>> teachersByDepartment(
+            @PathVariable Long departmentId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<TeacherLocalizedResponse>>builder()
+                .message("Teachers fetched successfully")
+                .data(landingService.teachers(lang, null, departmentId, pageable))
+                .build());
+    }
+
+    @GetMapping("/faculties/{facultyId}/departments/{departmentId}/teachers")
+    @Operation(summary = "Fakultet va kafedraga tegishli o'qituvchilar")
+    public ResponseEntity<RestApiResponse<PageResponse<TeacherLocalizedResponse>>> teachersByFacultyAndDepartment(
+            @PathVariable Long facultyId,
+            @PathVariable Long departmentId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<TeacherLocalizedResponse>>builder()
+                .message("Teachers fetched successfully")
+                .data(landingService.teachers(lang, facultyId, departmentId, pageable))
                 .build());
     }
 
@@ -175,6 +253,19 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<CenterLocalizedResponse>builder()
                 .message("Center fetched successfully")
                 .data(landingService.centerById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/centers/{centerId}/employees")
+    @Operation(summary = "Markazga tegishli hodimlar")
+    public ResponseEntity<RestApiResponse<PageResponse<EmployeeLocalizedResponse>>> employeesByCenter(
+            @PathVariable Long centerId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<EmployeeLocalizedResponse>>builder()
+                .message("Employees fetched successfully")
+                .data(landingService.employees(lang, centerId, pageable))
                 .build());
     }
 

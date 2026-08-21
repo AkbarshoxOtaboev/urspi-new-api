@@ -27,6 +27,10 @@ import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
+import uz.urspi.newurspi.leader.Leader;
+import uz.urspi.newurspi.leader.mapper.LeaderMapper;
+import uz.urspi.newurspi.leader.repository.LeaderRepository;
+import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.News;
 import uz.urspi.newurspi.news.mapper.NewsMapper;
 import uz.urspi.newurspi.news.repository.NewsRepository;
@@ -58,6 +62,8 @@ public class LandingServiceImpl implements LandingService {
     private final CenterMapper centerMapper;
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
+    private final LeaderRepository leaderRepository;
+    private final LeaderMapper leaderMapper;
 
     @Override
     public PageResponse<NewsLocalizedResponse> news(Language lang, Pageable pageable) {
@@ -166,5 +172,18 @@ public class LandingServiceImpl implements LandingService {
         Employee employee = employeeRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id = " + id));
         return employeeMapper.toLocalizedResponse(employee, lang);
+    }
+
+    @Override
+    public PageResponse<LeaderLocalizedResponse> leaders(Language lang, Pageable pageable) {
+        Page<Leader> page = leaderRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable);
+        return PageResponse.of(page, leaderMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public LeaderLocalizedResponse leaderById(Long id, Language lang) {
+        Leader leader = leaderRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Leader not found with id = " + id));
+        return leaderMapper.toLocalizedResponse(leader, lang);
     }
 }
