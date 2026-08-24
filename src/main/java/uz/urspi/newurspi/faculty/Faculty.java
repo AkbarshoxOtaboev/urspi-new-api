@@ -1,5 +1,6 @@
 package uz.urspi.newurspi.faculty;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -26,9 +27,13 @@ import java.util.List;
 @SuperBuilder
 public class Faculty extends BaseEntity {
     private String code;
+
+    @Column(name = "name")
     private String nameUz;
     private String nameRu;
     private String nameEn;
+
+    @Column(name = "description")
     private String descriptionUz;
     private String descriptionRu;
     private String descriptionEn;

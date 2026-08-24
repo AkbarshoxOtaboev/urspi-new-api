@@ -23,9 +23,12 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 public class Department extends BaseEntity {
+    @Column(name = "name")
     private String nameUz;
     private String nameRu;
     private String nameEn;
+
+    @Column(name = "description")
     private String descriptionUz;
     private String descriptionRu;
     private String descriptionEn;

@@ -26,6 +26,7 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         dropIfExists("permissions_status_check");
         deleteStalePermissions();
         dropLeftoverTables();
+        migrateLegacyTextColumns();
     }
 
     private void dropIfExists(String constraintName) {
@@ -61,6 +62,58 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         jdbcTemplate.execute("DROP TABLE IF EXISTS ranges CASCADE");
         jdbcTemplate.execute("DROP TABLE IF EXISTS semesters CASCADE");
         log.info("Dropped leftover groups, ranges and semesters tables if present");
+    }
+
+    /**
+     * ddl-auto:update eski ustunni rename qilmaydi. fullName → fullNameUz
+     * yangi full_name_uz yaratadi, eski full_name NOT NULL qoladi.
+     * Uz fieldlar legacy ustunga map qilinadi; yangi duplicate ustundan NOT NULL olinadi.
+     */
+    private void migrateLegacyTextColumns() {
+        backfill("teachers", "full_name", "full_name_uz");
+        dropNotNullIfExists("teachers", "full_name_uz");
+
+        backfill("faculties", "name", "name_uz");
+        dropNotNullIfExists("faculties", "name_uz");
+        backfill("faculties", "description", "description_uz");
+        dropNotNullIfExists("faculties", "description_uz");
+
+        backfill("departments", "name", "name_uz");
+        dropNotNullIfExists("departments", "name_uz");
+        backfill("departments", "description", "description_uz");
+        dropNotNullIfExists("departments", "description_uz");
+    }
+
+    private void backfill(String table, String legacyColumn, String newColumn) {
+        if (!columnExists(table, legacyColumn) || !columnExists(table, newColumn)) {
+            return;
+        }
+        jdbcTemplate.execute(
+                "UPDATE " + table
+                        + " SET " + legacyColumn + " = " + newColumn
+                        + " WHERE (" + legacyColumn + " IS NULL OR " + legacyColumn + " = '')"
+                        + " AND " + newColumn + " IS NOT NULL AND " + newColumn + " <> ''"
+        );
+        log.info("Backfilled {}.{} from {}", table, legacyColumn, newColumn);
+    }
+
+    private void dropNotNullIfExists(String table, String column) {
+        if (!columnExists(table, column)) {
+            return;
+        }
+        jdbcTemplate.execute("ALTER TABLE " + table + " ALTER COLUMN " + column + " DROP NOT NULL");
+        log.info("Dropped NOT NULL on {}.{} if present", table, column);
+    }
+
+    private boolean columnExists(String table, String column) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM information_schema.columns "
+                        + "WHERE table_schema = current_schema() AND table_name = ? AND column_name = ?",
+                Integer.class,
+                table,
+                column
+        );
+        return count != null && count > 0;
     }
 }
 
