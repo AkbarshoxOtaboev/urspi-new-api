@@ -16,4 +16,8 @@ public enum Resource {
     NEWS,
     ANNOUNCEMENT,
     EMPLOYEE,
+    PHOTO_GALLERY,
+    RENTAL,
+    DORMITORY,
+    GREEN_INSTITUTE,
 }

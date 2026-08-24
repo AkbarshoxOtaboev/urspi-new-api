@@ -14,11 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 import uz.urspi.newurspi.announcement.response.AnnouncementLocalizedResponse;
 import uz.urspi.newurspi.center.response.CenterLocalizedResponse;
 import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
+import uz.urspi.newurspi.dormitory.response.DormitoryLocalizedResponse;
 import uz.urspi.newurspi.employee.response.EmployeeLocalizedResponse;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
+import uz.urspi.newurspi.greeninstitute.response.GreenInstituteLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
 import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
+import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
+import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
 import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.PageResponse;
@@ -291,6 +295,102 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<EmployeeLocalizedResponse>builder()
                 .message("Employee fetched successfully")
                 .data(landingService.employeeById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/photo-galleries")
+    @Operation(summary = "Foto galereya (pageable + lang)")
+    public ResponseEntity<RestApiResponse<PageResponse<PhotoGalleryLocalizedResponse>>> photoGalleries(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<PhotoGalleryLocalizedResponse>>builder()
+                .message("Photo galleries fetched successfully")
+                .data(landingService.photoGalleries(lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/photo-galleries/{id}")
+    @Operation(summary = "Foto galereya ID bo'yicha")
+    public ResponseEntity<RestApiResponse<PhotoGalleryLocalizedResponse>> photoGalleryById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PhotoGalleryLocalizedResponse>builder()
+                .message("Photo gallery fetched successfully")
+                .data(landingService.photoGalleryById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/rentals")
+    @Operation(summary = "Talabalarga ijara xonadonlar (pageable + lang)")
+    public ResponseEntity<RestApiResponse<PageResponse<RentalLocalizedResponse>>> rentals(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<RentalLocalizedResponse>>builder()
+                .message("Rentals fetched successfully")
+                .data(landingService.rentals(lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/rentals/{id}")
+    @Operation(summary = "Ijara xonadon ID bo'yicha")
+    public ResponseEntity<RestApiResponse<RentalLocalizedResponse>> rentalById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<RentalLocalizedResponse>builder()
+                .message("Rental fetched successfully")
+                .data(landingService.rentalById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/dormitories")
+    @Operation(summary = "Talabalar turar joyi (pageable + lang)")
+    public ResponseEntity<RestApiResponse<PageResponse<DormitoryLocalizedResponse>>> dormitories(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<DormitoryLocalizedResponse>>builder()
+                .message("Dormitories fetched successfully")
+                .data(landingService.dormitories(lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/dormitories/{id}")
+    @Operation(summary = "Talabalar turar joyi ID bo'yicha")
+    public ResponseEntity<RestApiResponse<DormitoryLocalizedResponse>> dormitoryById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<DormitoryLocalizedResponse>builder()
+                .message("Dormitory fetched successfully")
+                .data(landingService.dormitoryById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/green-institutes")
+    @Operation(summary = "Yashil institut (pageable + lang)")
+    public ResponseEntity<RestApiResponse<PageResponse<GreenInstituteLocalizedResponse>>> greenInstitutes(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<GreenInstituteLocalizedResponse>>builder()
+                .message("Green institute items fetched successfully")
+                .data(landingService.greenInstitutes(lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/green-institutes/{id}")
+    @Operation(summary = "Yashil institut ID bo'yicha")
+    public ResponseEntity<RestApiResponse<GreenInstituteLocalizedResponse>> greenInstituteById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<GreenInstituteLocalizedResponse>builder()
+                .message("Green institute fetched successfully")
+                .data(landingService.greenInstituteById(id, lang))
                 .build());
     }
 }

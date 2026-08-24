@@ -17,6 +17,10 @@ import uz.urspi.newurspi.department.Department;
 import uz.urspi.newurspi.department.mapper.DepartmentMapper;
 import uz.urspi.newurspi.department.repository.DepartmentRepository;
 import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
+import uz.urspi.newurspi.dormitory.Dormitory;
+import uz.urspi.newurspi.dormitory.mapper.DormitoryMapper;
+import uz.urspi.newurspi.dormitory.repository.DormitoryRepository;
+import uz.urspi.newurspi.dormitory.response.DormitoryLocalizedResponse;
 import uz.urspi.newurspi.employee.Employee;
 import uz.urspi.newurspi.employee.mapper.EmployeeMapper;
 import uz.urspi.newurspi.employee.repository.EmployeeRepository;
@@ -26,6 +30,10 @@ import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
+import uz.urspi.newurspi.greeninstitute.GreenInstitute;
+import uz.urspi.newurspi.greeninstitute.mapper.GreenInstituteMapper;
+import uz.urspi.newurspi.greeninstitute.repository.GreenInstituteRepository;
+import uz.urspi.newurspi.greeninstitute.response.GreenInstituteLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
 import uz.urspi.newurspi.leader.Leader;
 import uz.urspi.newurspi.leader.mapper.LeaderMapper;
@@ -35,6 +43,14 @@ import uz.urspi.newurspi.news.News;
 import uz.urspi.newurspi.news.mapper.NewsMapper;
 import uz.urspi.newurspi.news.repository.NewsRepository;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
+import uz.urspi.newurspi.photogallery.PhotoGallery;
+import uz.urspi.newurspi.photogallery.mapper.PhotoGalleryMapper;
+import uz.urspi.newurspi.photogallery.repository.PhotoGalleryRepository;
+import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
+import uz.urspi.newurspi.rental.Rental;
+import uz.urspi.newurspi.rental.mapper.RentalMapper;
+import uz.urspi.newurspi.rental.repository.RentalRepository;
+import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
 import uz.urspi.newurspi.teacher.Teacher;
 import uz.urspi.newurspi.teacher.mapper.TeacherMapper;
 import uz.urspi.newurspi.teacher.repository.TeacherRepository;
@@ -64,6 +80,14 @@ public class LandingServiceImpl implements LandingService {
     private final EmployeeMapper employeeMapper;
     private final LeaderRepository leaderRepository;
     private final LeaderMapper leaderMapper;
+    private final PhotoGalleryRepository photoGalleryRepository;
+    private final PhotoGalleryMapper photoGalleryMapper;
+    private final RentalRepository rentalRepository;
+    private final RentalMapper rentalMapper;
+    private final DormitoryRepository dormitoryRepository;
+    private final DormitoryMapper dormitoryMapper;
+    private final GreenInstituteRepository greenInstituteRepository;
+    private final GreenInstituteMapper greenInstituteMapper;
 
     @Override
     public PageResponse<NewsLocalizedResponse> news(Language lang, Pageable pageable) {
@@ -185,5 +209,57 @@ public class LandingServiceImpl implements LandingService {
         Leader leader = leaderRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Leader not found with id = " + id));
         return leaderMapper.toLocalizedResponse(leader, lang);
+    }
+
+    @Override
+    public PageResponse<PhotoGalleryLocalizedResponse> photoGalleries(Language lang, Pageable pageable) {
+        Page<PhotoGallery> page = photoGalleryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        return PageResponse.of(page, photoGalleryMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public PhotoGalleryLocalizedResponse photoGalleryById(Long id, Language lang) {
+        PhotoGallery item = photoGalleryRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Photo gallery not found with id = " + id));
+        return photoGalleryMapper.toLocalizedResponse(item, lang);
+    }
+
+    @Override
+    public PageResponse<RentalLocalizedResponse> rentals(Language lang, Pageable pageable) {
+        Page<Rental> page = rentalRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        return PageResponse.of(page, rentalMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public RentalLocalizedResponse rentalById(Long id, Language lang) {
+        Rental rental = rentalRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Rental not found with id = " + id));
+        return rentalMapper.toLocalizedResponse(rental, lang);
+    }
+
+    @Override
+    public PageResponse<DormitoryLocalizedResponse> dormitories(Language lang, Pageable pageable) {
+        Page<Dormitory> page = dormitoryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        return PageResponse.of(page, dormitoryMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public DormitoryLocalizedResponse dormitoryById(Long id, Language lang) {
+        Dormitory dormitory = dormitoryRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Dormitory not found with id = " + id));
+        return dormitoryMapper.toLocalizedResponse(dormitory, lang);
+    }
+
+    @Override
+    public PageResponse<GreenInstituteLocalizedResponse> greenInstitutes(Language lang, Pageable pageable) {
+        Page<GreenInstitute> page = greenInstituteRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        return PageResponse.of(page, greenInstituteMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public GreenInstituteLocalizedResponse greenInstituteById(Long id, Language lang) {
+        GreenInstitute item = greenInstituteRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Green institute not found with id = " + id));
+        return greenInstituteMapper.toLocalizedResponse(item, lang);
     }
 }
