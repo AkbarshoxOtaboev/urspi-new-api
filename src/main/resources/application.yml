@@ -26,6 +26,9 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  tomcat:
+    max-http-form-post-size: 30MB
+    max-swallow-size: 30MB
 
 jwt:
   secret: ${JWT_SECRET:dev-only-change-me-use-at-least-32-byte-secret!}

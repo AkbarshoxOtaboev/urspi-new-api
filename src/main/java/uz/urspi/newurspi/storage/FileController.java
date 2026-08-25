@@ -32,15 +32,41 @@ public class FileController {
     public ResponseEntity<Resource> download(
             @PathVariable String fileName
     ) {
-
         Resource resource = storageService.downloadFile(fileName);
+        MediaType mediaType = mediaTypeFor(fileName);
+        boolean inline = mediaType.getType().equals("image")
+                || MediaType.APPLICATION_PDF.equals(mediaType);
 
         return ResponseEntity.ok()
+                .contentType(mediaType)
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + fileName + "\""
+                        (inline ? "inline" : "attachment") + "; filename=\"" + fileName + "\""
                 )
                 .body(resource);
+    }
+
+    private MediaType mediaTypeFor(String fileName) {
+        String lower = fileName == null ? "" : fileName.toLowerCase();
+        if (lower.endsWith(".png")) {
+            return MediaType.IMAGE_PNG;
+        }
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+            return MediaType.IMAGE_JPEG;
+        }
+        if (lower.endsWith(".gif")) {
+            return MediaType.IMAGE_GIF;
+        }
+        if (lower.endsWith(".webp")) {
+            return MediaType.parseMediaType("image/webp");
+        }
+        if (lower.endsWith(".svg")) {
+            return MediaType.parseMediaType("image/svg+xml");
+        }
+        if (lower.endsWith(".pdf")) {
+            return MediaType.APPLICATION_PDF;
+        }
+        return MediaType.APPLICATION_OCTET_STREAM;
     }
 
     @DeleteMapping("/{fileName}")
