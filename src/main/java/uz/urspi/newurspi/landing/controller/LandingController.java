@@ -17,6 +17,7 @@ import uz.urspi.newurspi.department.response.DepartmentLocalizedResponse;
 import uz.urspi.newurspi.dormitory.response.DormitoryLocalizedResponse;
 import uz.urspi.newurspi.employee.response.EmployeeLocalizedResponse;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
+import uz.urspi.newurspi.facultystaff.response.FacultyStaffLocalizedResponse;
 import uz.urspi.newurspi.greeninstitute.response.GreenInstituteLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
 import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
@@ -129,6 +130,44 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<FacultyLocalizedResponse>builder()
                 .message("Faculty fetched successfully")
                 .data(landingService.facultyById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/faculty-staff")
+    @Operation(summary = "Fakultet hodimlari / dekanat (pageable + lang, optional facultyId)")
+    public ResponseEntity<RestApiResponse<PageResponse<FacultyStaffLocalizedResponse>>> facultyStaff(
+            @RequestParam(defaultValue = "uz") Language lang,
+            @RequestParam(required = false) Long facultyId,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<FacultyStaffLocalizedResponse>>builder()
+                .message("Faculty staff fetched successfully")
+                .data(landingService.facultyStaff(lang, facultyId, pageable))
+                .build());
+    }
+
+    @GetMapping("/faculty-staff/{id}")
+    @Operation(summary = "Fakultet hodimi ID bo'yicha")
+    public ResponseEntity<RestApiResponse<FacultyStaffLocalizedResponse>> facultyStaffById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<FacultyStaffLocalizedResponse>builder()
+                .message("Faculty staff fetched successfully")
+                .data(landingService.facultyStaffById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/faculties/{facultyId}/staff")
+    @Operation(summary = "Fakultetga tegishli dekan/zam-dekanlar (sortOrder ASC)")
+    public ResponseEntity<RestApiResponse<PageResponse<FacultyStaffLocalizedResponse>>> staffByFaculty(
+            @PathVariable Long facultyId,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<FacultyStaffLocalizedResponse>>builder()
+                .message("Faculty staff fetched successfully")
+                .data(landingService.facultyStaff(lang, facultyId, pageable))
                 .build());
     }
 

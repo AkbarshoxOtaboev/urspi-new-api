@@ -15,6 +15,7 @@ public final class CacheNames {
     public static final String NEWS = "news";
     public static final String ANNOUNCEMENTS = "announcements";
     public static final String EMPLOYEES = "employees";
+    public static final String FACULTY_STAFF = "faculty-staff";
     public static final String PHOTO_GALLERIES = "photo-galleries";
     public static final String RENTALS = "rentals";
     public static final String DORMITORIES = "dormitories";

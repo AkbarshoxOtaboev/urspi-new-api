@@ -30,6 +30,10 @@ import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.mapper.FacultyMapper;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
+import uz.urspi.newurspi.facultystaff.FacultyStaff;
+import uz.urspi.newurspi.facultystaff.mapper.FacultyStaffMapper;
+import uz.urspi.newurspi.facultystaff.repository.FacultyStaffRepository;
+import uz.urspi.newurspi.facultystaff.response.FacultyStaffLocalizedResponse;
 import uz.urspi.newurspi.greeninstitute.GreenInstitute;
 import uz.urspi.newurspi.greeninstitute.mapper.GreenInstituteMapper;
 import uz.urspi.newurspi.greeninstitute.repository.GreenInstituteRepository;
@@ -70,6 +74,8 @@ public class LandingServiceImpl implements LandingService {
     private final AnnouncementMapper announcementMapper;
     private final FacultyRepository facultyRepository;
     private final FacultyMapper facultyMapper;
+    private final FacultyStaffRepository facultyStaffRepository;
+    private final FacultyStaffMapper facultyStaffMapper;
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
     private final TeacherRepository teacherRepository;
@@ -126,6 +132,21 @@ public class LandingServiceImpl implements LandingService {
         Faculty faculty = facultyRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Faculty not found with id = " + id));
         return facultyMapper.toLocalizedResponse(faculty, lang);
+    }
+
+    @Override
+    public PageResponse<FacultyStaffLocalizedResponse> facultyStaff(Language lang, Long facultyId, Pageable pageable) {
+        Page<FacultyStaff> page = facultyId == null
+                ? facultyStaffRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable)
+                : facultyStaffRepository.findAllByStatusAndFacultyIdOrderBySortOrderAsc(Status.ACTIVE, facultyId, pageable);
+        return PageResponse.of(page, facultyStaffMapper.toLocalizedResponseList(page.getContent(), lang));
+    }
+
+    @Override
+    public FacultyStaffLocalizedResponse facultyStaffById(Long id, Language lang) {
+        FacultyStaff staff = facultyStaffRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Faculty staff not found with id = " + id));
+        return facultyStaffMapper.toLocalizedResponse(staff, lang);
     }
 
     @Override

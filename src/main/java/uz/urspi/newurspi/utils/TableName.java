@@ -18,6 +18,7 @@ public interface TableName {
     String NEWS = "news";
     String ANNOUNCEMENTS = "announcements";
     String EMPLOYEES = "employees";
+    String FACULTY_STAFF = "faculty_staff";
     String PHOTO_GALLERIES = "photo_galleries";
     String RENTALS = "rentals";
     String DORMITORIES = "dormitories";
