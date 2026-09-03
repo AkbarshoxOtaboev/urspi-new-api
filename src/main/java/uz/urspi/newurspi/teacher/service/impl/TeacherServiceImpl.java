@@ -20,6 +20,8 @@ import uz.urspi.newurspi.faculty.Faculty;
 import uz.urspi.newurspi.faculty.repository.FacultyRepository;
 import uz.urspi.newurspi.position.Position;
 import uz.urspi.newurspi.position.repository.PositionRepository;
+import uz.urspi.newurspi.scientificarticle.mapper.ScientificArticleMapper;
+import uz.urspi.newurspi.scientificarticle.repository.ScientificArticleRepository;
 import uz.urspi.newurspi.storage.StorageService;
 import uz.urspi.newurspi.teacher.Teacher;
 import uz.urspi.newurspi.teacher.dto.TeacherDTO;
@@ -47,6 +49,8 @@ public class TeacherServiceImpl implements TeacherService {
     private final AcademicDegreeRepository academicDegreeRepository;
     private final StorageService storageService;
     private final TeacherMapper mapper;
+    private final ScientificArticleRepository scientificArticleRepository;
+    private final ScientificArticleMapper scientificArticleMapper;
 
     @Override
     @CacheEvict(value = CacheNames.TEACHERS, allEntries = true)
@@ -88,7 +92,11 @@ public class TeacherServiceImpl implements TeacherService {
     @Auditable(action = AuditAction.READ, entity = "Teacher")
     public TeacherResponse findById(Long id) {
         log.info("Find teacher by id {}", id);
-        return mapper.toResponse(getTeacherOrThrow(id));
+        TeacherResponse response = mapper.toResponse(getTeacherOrThrow(id));
+        response.setScientificArticles(scientificArticleMapper.toResponseList(
+                scientificArticleRepository.findAllByTeacherIdAndStatusOrderByPublicationYearDescIdDesc(id, Status.ACTIVE)
+        ));
+        return response;
     }
 
     @Override

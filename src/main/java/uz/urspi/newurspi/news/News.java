@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 import uz.urspi.newurspi.utils.BaseEntity;
 import uz.urspi.newurspi.utils.TableName;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,13 @@ import java.util.List;
 @SuperBuilder
 public class News extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String titleUz;
+
+    @Column(columnDefinition = "TEXT")
     private String titleRu;
+
+    @Column(columnDefinition = "TEXT")
     private String titleEn;
 
     @Column(columnDefinition = "TEXT")
@@ -34,6 +39,9 @@ public class News extends BaseEntity {
     private String contentRu;
     @Column(columnDefinition = "TEXT")
     private String contentEn;
+
+    /** Manual publish date used for listing order (e.g. 01-01-2026). */
+    private LocalDate publishedAt;
 
     private String author;
     private String mainImageLink;

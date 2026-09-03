@@ -21,4 +21,5 @@ public enum Resource {
     RENTAL,
     DORMITORY,
     GREEN_INSTITUTE,
+    SCIENTIFIC_ARTICLE,
 }

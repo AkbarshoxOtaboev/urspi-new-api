@@ -6,9 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.urspi.newurspi.scientificarticle.response.ScientificArticleResponse;
 import uz.urspi.newurspi.utils.Status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,6 +26,7 @@ public class TeacherLocalizedResponse {
     private String photoLink;
     private String cvLink;
     private Integer sortOrder;
+    private List<ScientificArticleResponse> scientificArticles;
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

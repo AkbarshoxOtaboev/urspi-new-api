@@ -13,9 +13,12 @@ import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
 import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
+import uz.urspi.newurspi.scientificarticle.response.ScientificArticleResponse;
 import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.PageResponse;
+
+import java.util.List;
 
 public interface LandingService {
 
@@ -42,6 +45,8 @@ public interface LandingService {
     PageResponse<TeacherLocalizedResponse> teachers(Language lang, Long facultyId, Long departmentId, Pageable pageable);
 
     TeacherLocalizedResponse teacherById(Long id, Language lang);
+
+    List<ScientificArticleResponse> teacherScientificArticles(Long teacherId);
 
     PageResponse<CenterLocalizedResponse> centers(Language lang, Pageable pageable);
 

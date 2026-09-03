@@ -1,15 +1,14 @@
-package uz.urspi.newurspi.announcement.response;
+package uz.urspi.newurspi.scientificarticle.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.urspi.newurspi.utils.ScientificArticleType;
 import uz.urspi.newurspi.utils.Status;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -17,14 +16,16 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Announcement localized response")
-public class AnnouncementLocalizedResponse {
+@Schema(description = "Scientific article response")
+public class ScientificArticleResponse {
     private Long id;
+    private Long teacherId;
     private String title;
-    private String content;
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate publishedAt;
-    private String imageLink;
+    private ScientificArticleType type;
+    private Integer publicationYear;
+    private String journalName;
+    private String articleUrl;
+    private String fileLink;
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

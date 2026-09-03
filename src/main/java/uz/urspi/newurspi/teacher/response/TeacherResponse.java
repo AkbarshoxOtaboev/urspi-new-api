@@ -10,9 +10,11 @@ import uz.urspi.newurspi.academicdegree.response.AcademicDegreeResponse;
 import uz.urspi.newurspi.department.response.DepartmentResponse;
 import uz.urspi.newurspi.faculty.response.FacultyResponse;
 import uz.urspi.newurspi.position.response.PositionResponse;
+import uz.urspi.newurspi.scientificarticle.response.ScientificArticleResponse;
 import uz.urspi.newurspi.utils.Status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -34,6 +36,7 @@ public class TeacherResponse {
     private DepartmentResponse department;
     private PositionResponse position;
     private AcademicDegreeResponse academicDegree;
+    private List<ScientificArticleResponse> scientificArticles;
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

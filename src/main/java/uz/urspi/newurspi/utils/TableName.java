@@ -23,4 +23,5 @@ public interface TableName {
     String RENTALS = "rentals";
     String DORMITORIES = "dormitories";
     String GREEN_INSTITUTES = "green_institutes";
+    String SCIENTIFIC_ARTICLES = "scientific_articles";
 }

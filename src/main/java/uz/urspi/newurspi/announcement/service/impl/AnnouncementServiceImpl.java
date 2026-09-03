@@ -51,6 +51,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .contentUz(dto.getContentUz())
                 .contentRu(dto.getContentRu())
                 .contentEn(dto.getContentEn())
+                .publishedAt(dto.getPublishedAt())
                 .imageLink(storeFile(dto.getImage()))
                 .status(Status.ACTIVE)
                 .createdUsername(username)
@@ -80,7 +81,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     )
     public List<AnnouncementResponse> fetchAllAnnouncements() {
         log.info("Fetch all announcements");
-        return mapper.toResponseList(repository.findAllByOrderByCreatedAtDesc());
+        return mapper.toResponseList(repository.findAllByOrderByPublishedAtDescCreatedAtDesc());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     )
     public List<AnnouncementLocalizedResponse> fetchAllAnnouncementsByLang(Language lang) {
         log.info("Fetch all announcements by language {}", lang);
-        return mapper.toLocalizedResponseList(repository.findAllByOrderByCreatedAtDesc(), lang);
+        return mapper.toLocalizedResponseList(repository.findAllByOrderByPublishedAtDescCreatedAtDesc(), lang);
     }
 
     @Override
@@ -111,6 +112,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcement.setContentUz(dto.getContentUz());
         announcement.setContentRu(dto.getContentRu());
         announcement.setContentEn(dto.getContentEn());
+        announcement.setPublishedAt(dto.getPublishedAt());
 
         String imageLink = storeFile(dto.getImage());
         if (imageLink != null) {

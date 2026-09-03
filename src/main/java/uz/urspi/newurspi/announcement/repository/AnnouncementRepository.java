@@ -12,9 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
-    List<Announcement> findAllByOrderByCreatedAtDesc();
+    List<Announcement> findAllByOrderByPublishedAtDescCreatedAtDesc();
 
-    Page<Announcement> findAllByStatusOrderByCreatedAtDesc(Status status, Pageable pageable);
+    Page<Announcement> findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status status, Pageable pageable);
 
     Optional<Announcement> findByIdAndStatus(Long id, Status status);
 }

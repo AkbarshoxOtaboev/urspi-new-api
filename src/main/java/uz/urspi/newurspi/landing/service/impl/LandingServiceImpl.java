@@ -55,6 +55,9 @@ import uz.urspi.newurspi.rental.Rental;
 import uz.urspi.newurspi.rental.mapper.RentalMapper;
 import uz.urspi.newurspi.rental.repository.RentalRepository;
 import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
+import uz.urspi.newurspi.scientificarticle.mapper.ScientificArticleMapper;
+import uz.urspi.newurspi.scientificarticle.repository.ScientificArticleRepository;
+import uz.urspi.newurspi.scientificarticle.response.ScientificArticleResponse;
 import uz.urspi.newurspi.teacher.Teacher;
 import uz.urspi.newurspi.teacher.mapper.TeacherMapper;
 import uz.urspi.newurspi.teacher.repository.TeacherRepository;
@@ -62,6 +65,8 @@ import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.PageResponse;
 import uz.urspi.newurspi.utils.Status;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +85,8 @@ public class LandingServiceImpl implements LandingService {
     private final DepartmentMapper departmentMapper;
     private final TeacherRepository teacherRepository;
     private final TeacherMapper teacherMapper;
+    private final ScientificArticleRepository scientificArticleRepository;
+    private final ScientificArticleMapper scientificArticleMapper;
     private final CenterRepository centerRepository;
     private final CenterMapper centerMapper;
     private final EmployeeRepository employeeRepository;
@@ -97,7 +104,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<NewsLocalizedResponse> news(Language lang, Pageable pageable) {
-        Page<News> page = newsRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<News> page = newsRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, pageable);
         return PageResponse.of(page, newsMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -110,7 +117,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<AnnouncementLocalizedResponse> announcements(Language lang, Pageable pageable) {
-        Page<Announcement> page = announcementRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<Announcement> page = announcementRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, pageable);
         return PageResponse.of(page, announcementMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -188,7 +195,20 @@ public class LandingServiceImpl implements LandingService {
     public TeacherLocalizedResponse teacherById(Long id, Language lang) {
         Teacher teacher = teacherRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id = " + id));
-        return teacherMapper.toLocalizedResponse(teacher, lang);
+        TeacherLocalizedResponse response = teacherMapper.toLocalizedResponse(teacher, lang);
+        response.setScientificArticles(scientificArticleMapper.toResponseList(
+                scientificArticleRepository.findAllByTeacherIdAndStatusOrderByPublicationYearDescIdDesc(id, Status.ACTIVE)
+        ));
+        return response;
+    }
+
+    @Override
+    public List<ScientificArticleResponse> teacherScientificArticles(Long teacherId) {
+        teacherRepository.findByIdAndStatus(teacherId, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id = " + teacherId));
+        return scientificArticleMapper.toResponseList(
+                scientificArticleRepository.findAllByTeacherIdAndStatusOrderByPublicationYearDescIdDesc(teacherId, Status.ACTIVE)
+        );
     }
 
     @Override

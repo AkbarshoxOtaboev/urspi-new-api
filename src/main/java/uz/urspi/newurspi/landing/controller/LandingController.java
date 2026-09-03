@@ -24,10 +24,13 @@ import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
 import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
+import uz.urspi.newurspi.scientificarticle.response.ScientificArticleResponse;
 import uz.urspi.newurspi.teacher.response.TeacherLocalizedResponse;
 import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.PageResponse;
 import uz.urspi.newurspi.utils.RestApiResponse;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/landing")
@@ -272,6 +275,17 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<TeacherLocalizedResponse>builder()
                 .message("Teacher fetched successfully")
                 .data(landingService.teacherById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/teachers/{id}/scientific-articles")
+    @Operation(summary = "O'qituvchi ilmiy maqolalari")
+    public ResponseEntity<RestApiResponse<List<ScientificArticleResponse>>> teacherScientificArticles(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<List<ScientificArticleResponse>>builder()
+                .message("Teacher scientific articles fetched successfully")
+                .data(landingService.teacherScientificArticles(id))
                 .build());
     }
 

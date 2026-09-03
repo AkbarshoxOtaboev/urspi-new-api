@@ -1,9 +1,11 @@
 package uz.urspi.newurspi.news.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import uz.urspi.newurspi.utils.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +23,8 @@ public class NewsResponse {
     private String contentUz;
     private String contentRu;
     private String contentEn;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate publishedAt;
     private String author;
     private String mainImageLink;
     private List<String> imageLinks;

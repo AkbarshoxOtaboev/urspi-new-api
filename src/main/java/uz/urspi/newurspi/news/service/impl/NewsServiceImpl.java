@@ -49,6 +49,7 @@ public class NewsServiceImpl implements NewsService {
                 .contentUz(dto.getContentUz())
                 .contentRu(dto.getContentRu())
                 .contentEn(dto.getContentEn())
+                .publishedAt(dto.getPublishedAt())
                 .author(dto.getAuthor())
                 .mainImageLink(storeFile(dto.getMainImage()))
                 .imageLinks(storeFiles(dto.getImages()))
@@ -74,7 +75,7 @@ public class NewsServiceImpl implements NewsService {
     @Auditable(action = AuditAction.READ, entity = "News")
     public List<NewsResponse> fetchAllNews() {
         log.info("Fetch all news");
-        return mapper.toResponseList(repository.findAllByOrderByCreatedAtDesc());
+        return mapper.toResponseList(repository.findAllByOrderByPublishedAtDescCreatedAtDesc());
     }
 
     @Override
@@ -82,7 +83,7 @@ public class NewsServiceImpl implements NewsService {
     @Auditable(action = AuditAction.READ, entity = "News")
     public List<NewsLocalizedResponse> fetchAllNewsByLang(Language lang) {
         log.info("Fetch all news by language {}", lang);
-        return mapper.toLocalizedResponseList(repository.findAllByOrderByCreatedAtDesc(), lang);
+        return mapper.toLocalizedResponseList(repository.findAllByOrderByPublishedAtDescCreatedAtDesc(), lang);
     }
 
     @Override
@@ -99,6 +100,7 @@ public class NewsServiceImpl implements NewsService {
         news.setContentUz(dto.getContentUz());
         news.setContentRu(dto.getContentRu());
         news.setContentEn(dto.getContentEn());
+        news.setPublishedAt(dto.getPublishedAt());
         news.setAuthor(dto.getAuthor());
 
         String mainImageLink = storeFile(dto.getMainImage());

@@ -12,9 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {
-    List<News> findAllByOrderByCreatedAtDesc();
+    List<News> findAllByOrderByPublishedAtDescCreatedAtDesc();
 
-    Page<News> findAllByStatusOrderByCreatedAtDesc(Status status, Pageable pageable);
+    Page<News> findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status status, Pageable pageable);
 
     Optional<News> findByIdAndStatus(Long id, Status status);
 }

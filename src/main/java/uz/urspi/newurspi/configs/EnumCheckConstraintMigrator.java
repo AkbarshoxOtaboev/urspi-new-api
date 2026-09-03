@@ -27,6 +27,8 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         deleteStalePermissions();
         dropLeftoverTables();
         migrateLegacyTextColumns();
+        backfillPublishedAt("news");
+        backfillPublishedAt("announcements");
     }
 
     private void dropIfExists(String constraintName) {
@@ -35,6 +37,10 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
     }
 
     private void deleteStalePermissions() {
+        if (!columnExists("permissions", "resource") || !columnExists("permissions", "action")) {
+            log.info("Skipping stale permission cleanup: permissions.resource/action columns not present yet");
+            return;
+        }
         String placeholders = Arrays.stream(Resource.values())
                 .map(resource -> "?")
                 .collect(Collectors.joining(","));
@@ -82,6 +88,20 @@ public class EnumCheckConstraintMigrator implements CommandLineRunner {
         dropNotNullIfExists("departments", "name_uz");
         backfill("departments", "description", "description_uz");
         dropNotNullIfExists("departments", "description_uz");
+    }
+
+    private void backfillPublishedAt(String table) {
+        if (!columnExists(table, "published_at") || !columnExists(table, "created_at")) {
+            return;
+        }
+        int updated = jdbcTemplate.update(
+                "UPDATE " + table
+                        + " SET published_at = CAST(created_at AS date)"
+                        + " WHERE published_at IS NULL AND created_at IS NOT NULL"
+        );
+        if (updated > 0) {
+            log.info("Backfilled {}.published_at for {} rows", table, updated);
+        }
     }
 
     private void backfill(String table, String legacyColumn, String newColumn) {

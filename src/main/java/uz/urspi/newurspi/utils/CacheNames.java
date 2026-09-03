@@ -20,6 +20,7 @@ public final class CacheNames {
     public static final String RENTALS = "rentals";
     public static final String DORMITORIES = "dormitories";
     public static final String GREEN_INSTITUTES = "green-institutes";
+    public static final String SCIENTIFIC_ARTICLES = "scientific-articles";
 
     private CacheNames() {
     }

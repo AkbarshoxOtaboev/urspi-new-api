@@ -12,6 +12,8 @@ import org.hibernate.annotations.SQLRestriction;
 import uz.urspi.newurspi.utils.BaseEntity;
 import uz.urspi.newurspi.utils.TableName;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = TableName.ANNOUNCEMENTS)
 @SQLRestriction("status <> 'DELETED' ")
@@ -22,10 +24,13 @@ import uz.urspi.newurspi.utils.TableName;
 @SuperBuilder
 public class Announcement extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String titleUz;
 
+    @Column(columnDefinition = "TEXT")
     private String titleRu;
+
+    @Column(columnDefinition = "TEXT")
     private String titleEn;
 
     @Column(columnDefinition = "TEXT")
@@ -36,6 +41,9 @@ public class Announcement extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String contentEn;
+
+    /** Manual publish date used for listing order (e.g. 01-01-2026). */
+    private LocalDate publishedAt;
 
     private String imageLink;
 }
