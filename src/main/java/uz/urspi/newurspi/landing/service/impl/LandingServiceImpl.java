@@ -3,6 +3,7 @@ package uz.urspi.newurspi.landing.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uz.urspi.newurspi.announcement.Announcement;
@@ -104,7 +105,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<NewsLocalizedResponse> news(Language lang, Pageable pageable) {
-        Page<News> page = newsRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<News> page = newsRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, newsMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -117,7 +118,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<AnnouncementLocalizedResponse> announcements(Language lang, Pageable pageable) {
-        Page<Announcement> page = announcementRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<Announcement> page = announcementRepository.findAllByStatusOrderByPublishedAtDescCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, announcementMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -130,7 +131,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<FacultyLocalizedResponse> faculties(Language lang, Pageable pageable) {
-        Page<Faculty> page = facultyRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, pageable);
+        Page<Faculty> page = facultyRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, facultyMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -144,8 +145,8 @@ public class LandingServiceImpl implements LandingService {
     @Override
     public PageResponse<FacultyStaffLocalizedResponse> facultyStaff(Language lang, Long facultyId, Pageable pageable) {
         Page<FacultyStaff> page = facultyId == null
-                ? facultyStaffRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable)
-                : facultyStaffRepository.findAllByStatusAndFacultyIdOrderBySortOrderAsc(Status.ACTIVE, facultyId, pageable);
+                ? facultyStaffRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, unsorted(pageable))
+                : facultyStaffRepository.findAllByStatusAndFacultyIdOrderBySortOrderAsc(Status.ACTIVE, facultyId, unsorted(pageable));
         return PageResponse.of(page, facultyStaffMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -159,8 +160,8 @@ public class LandingServiceImpl implements LandingService {
     @Override
     public PageResponse<DepartmentLocalizedResponse> departments(Language lang, Long facultyId, Pageable pageable) {
         Page<Department> page = facultyId == null
-                ? departmentRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, pageable)
-                : departmentRepository.findAllByStatusAndFacultyIdOrderByIdAsc(Status.ACTIVE, facultyId, pageable);
+                ? departmentRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, unsorted(pageable))
+                : departmentRepository.findAllByStatusAndFacultyIdOrderByIdAsc(Status.ACTIVE, facultyId, unsorted(pageable));
         return PageResponse.of(page, departmentMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -178,15 +179,15 @@ public class LandingServiceImpl implements LandingService {
         Page<Teacher> page;
         if (facultyId != null && departmentId != null) {
             page = teacherRepository.findAllByStatusAndFacultyIdAndDepartmentIdOrderBySortOrderAsc(
-                    Status.ACTIVE, facultyId, departmentId, pageable);
+                    Status.ACTIVE, facultyId, departmentId, unsorted(pageable));
         } else if (facultyId != null) {
             page = teacherRepository.findAllByStatusAndFacultyIdOrderBySortOrderAsc(
-                    Status.ACTIVE, facultyId, pageable);
+                    Status.ACTIVE, facultyId, unsorted(pageable));
         } else if (departmentId != null) {
             page = teacherRepository.findAllByStatusAndDepartmentIdOrderBySortOrderAsc(
-                    Status.ACTIVE, departmentId, pageable);
+                    Status.ACTIVE, departmentId, unsorted(pageable));
         } else {
-            page = teacherRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable);
+            page = teacherRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, unsorted(pageable));
         }
         return PageResponse.of(page, teacherMapper.toLocalizedResponseList(page.getContent(), lang));
     }
@@ -213,7 +214,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<CenterLocalizedResponse> centers(Language lang, Pageable pageable) {
-        Page<Center> page = centerRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, pageable);
+        Page<Center> page = centerRepository.findAllByStatusOrderByIdAsc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, centerMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -227,8 +228,8 @@ public class LandingServiceImpl implements LandingService {
     @Override
     public PageResponse<EmployeeLocalizedResponse> employees(Language lang, Long centerId, Pageable pageable) {
         Page<Employee> page = centerId == null
-                ? employeeRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable)
-                : employeeRepository.findAllByStatusAndCenterIdOrderBySortOrderAsc(Status.ACTIVE, centerId, pageable);
+                ? employeeRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, unsorted(pageable))
+                : employeeRepository.findAllByStatusAndCenterIdOrderBySortOrderAsc(Status.ACTIVE, centerId, unsorted(pageable));
         return PageResponse.of(page, employeeMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -241,7 +242,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<LeaderLocalizedResponse> leaders(Language lang, Pageable pageable) {
-        Page<Leader> page = leaderRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, pageable);
+        Page<Leader> page = leaderRepository.findAllByStatusOrderBySortOrderAsc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, leaderMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -254,7 +255,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<PhotoGalleryLocalizedResponse> photoGalleries(Language lang, Pageable pageable) {
-        Page<PhotoGallery> page = photoGalleryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<PhotoGallery> page = photoGalleryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, photoGalleryMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -267,7 +268,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<RentalLocalizedResponse> rentals(Language lang, Pageable pageable) {
-        Page<Rental> page = rentalRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<Rental> page = rentalRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, rentalMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -280,7 +281,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<DormitoryLocalizedResponse> dormitories(Language lang, Pageable pageable) {
-        Page<Dormitory> page = dormitoryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<Dormitory> page = dormitoryRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, dormitoryMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -293,7 +294,7 @@ public class LandingServiceImpl implements LandingService {
 
     @Override
     public PageResponse<GreenInstituteLocalizedResponse> greenInstitutes(Language lang, Pageable pageable) {
-        Page<GreenInstitute> page = greenInstituteRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, pageable);
+        Page<GreenInstitute> page = greenInstituteRepository.findAllByStatusOrderByCreatedAtDesc(Status.ACTIVE, unsorted(pageable));
         return PageResponse.of(page, greenInstituteMapper.toLocalizedResponseList(page.getContent(), lang));
     }
 
@@ -302,5 +303,15 @@ public class LandingServiceImpl implements LandingService {
         GreenInstitute item = greenInstituteRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Green institute not found with id = " + id));
         return greenInstituteMapper.toLocalizedResponse(item, lang);
+    }
+
+    /**
+     * Strip client Sort (Swagger often sends sort=string) so repository OrderBy* methods control ordering.
+     */
+    private static Pageable unsorted(Pageable pageable) {
+        if (pageable == null || pageable.isUnpaged()) {
+            return pageable;
+        }
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
     }
 }
