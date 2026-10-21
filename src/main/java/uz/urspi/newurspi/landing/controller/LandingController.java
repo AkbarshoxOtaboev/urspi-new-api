@@ -21,6 +21,12 @@ import uz.urspi.newurspi.facultystaff.response.FacultyStaffLocalizedResponse;
 import uz.urspi.newurspi.greeninstitute.response.GreenInstituteLocalizedResponse;
 import uz.urspi.newurspi.landing.service.LandingService;
 import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuCategoryLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfoLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfosPageResponse;
+import uz.urspi.newurspi.menu.response.MenuLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuMaterialLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuSubCategoryLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
 import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
@@ -444,6 +450,92 @@ public class LandingController {
         return ResponseEntity.ok(RestApiResponse.<GreenInstituteLocalizedResponse>builder()
                 .message("Green institute fetched successfully")
                 .data(landingService.greenInstituteById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/menus")
+    @Operation(summary = "Menyular (lang)")
+    public ResponseEntity<RestApiResponse<List<MenuLocalizedResponse>>> menus(
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<List<MenuLocalizedResponse>>builder()
+                .message("Menus fetched successfully")
+                .data(landingService.menus(lang))
+                .build());
+    }
+
+    @GetMapping("/menus/{menuId}/categories")
+    @Operation(summary = "Menu category lar")
+    public ResponseEntity<RestApiResponse<List<MenuCategoryLocalizedResponse>>> menuCategories(
+            @PathVariable Long menuId,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<List<MenuCategoryLocalizedResponse>>builder()
+                .message("Menu categories fetched successfully")
+                .data(landingService.menuCategories(menuId, lang))
+                .build());
+    }
+
+    @GetMapping("/categories/{categoryId}/subcategories")
+    @Operation(summary = "Category ichidagi subcategory lar")
+    public ResponseEntity<RestApiResponse<List<MenuSubCategoryLocalizedResponse>>> menuSubCategories(
+            @PathVariable Long categoryId,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<List<MenuSubCategoryLocalizedResponse>>builder()
+                .message("Menu subcategories fetched successfully")
+                .data(landingService.menuSubCategories(categoryId, lang))
+                .build());
+    }
+
+    @GetMapping("/subcategories/{id}")
+    @Operation(summary = "SubCategory detail")
+    public ResponseEntity<RestApiResponse<MenuSubCategoryLocalizedResponse>> menuSubCategoryById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<MenuSubCategoryLocalizedResponse>builder()
+                .message("Menu subcategory fetched successfully")
+                .data(landingService.menuSubCategoryById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/subcategories/{id}/infos")
+    @Operation(summary = "SubCategory infos (TABLE/FEED createdAt DESC; LINK da link qaytadi)")
+    public ResponseEntity<RestApiResponse<MenuInfosPageResponse>> menuInfos(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<MenuInfosPageResponse>builder()
+                .message("Menu infos fetched successfully")
+                .data(landingService.menuInfosBySubCategory(id, lang, pageable))
+                .build());
+    }
+
+    @GetMapping("/infos/{id}")
+    @Operation(summary = "Info detail + years[] (DESC)")
+    public ResponseEntity<RestApiResponse<MenuInfoLocalizedResponse>> menuInfoById(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "uz") Language lang
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<MenuInfoLocalizedResponse>builder()
+                .message("Menu info fetched successfully")
+                .data(landingService.menuInfoById(id, lang))
+                .build());
+    }
+
+    @GetMapping("/infos/{id}/materials")
+    @Operation(summary = "Info materiallari (year filter, createdAt DESC)")
+    public ResponseEntity<RestApiResponse<PageResponse<MenuMaterialLocalizedResponse>>> menuMaterials(
+            @PathVariable Long id,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(defaultValue = "uz") Language lang,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        return ResponseEntity.ok(RestApiResponse.<PageResponse<MenuMaterialLocalizedResponse>>builder()
+                .message("Menu materials fetched successfully")
+                .data(landingService.menuMaterials(id, year, lang, pageable))
                 .build());
     }
 }

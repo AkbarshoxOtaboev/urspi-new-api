@@ -21,6 +21,14 @@ public final class CacheNames {
     public static final String DORMITORIES = "dormitories";
     public static final String GREEN_INSTITUTES = "green-institutes";
     public static final String SCIENTIFIC_ARTICLES = "scientific-articles";
+    public static final String HEMIS_CONFIGS = "hemis-configs";
+    public static final String HEMIS_DEPARTMENTS = "hemis-departments";
+    public static final String HEMIS_EMPLOYEES = "hemis-employees";
+    public static final String MENUS = "menus";
+    public static final String MENU_CATEGORIES = "menu-categories";
+    public static final String MENU_SUBCATEGORIES = "menu-subcategories";
+    public static final String MENU_INFOS = "menu-infos";
+    public static final String MENU_MATERIALS = "menu-materials";
 
     private CacheNames() {
     }

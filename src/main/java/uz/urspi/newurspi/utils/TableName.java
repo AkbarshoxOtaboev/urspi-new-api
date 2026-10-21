@@ -24,4 +24,13 @@ public interface TableName {
     String DORMITORIES = "dormitories";
     String GREEN_INSTITUTES = "green_institutes";
     String SCIENTIFIC_ARTICLES = "scientific_articles";
+    String HEMIS_CONFIGS = "hemis_configs";
+    String HEMIS_DEPARTMENTS = "hemis_departments";
+    String HEMIS_EMPLOYEES = "hemis_employees";
+    String HEMIS_SYNC_LOGS = "hemis_sync_logs";
+    String MENUS = "menus";
+    String MENU_CATEGORIES = "menu_categories";
+    String MENU_SUBCATEGORIES = "menu_subcategories";
+    String MENU_INFOS = "menu_infos";
+    String MENU_MATERIALS = "menu_materials";
 }

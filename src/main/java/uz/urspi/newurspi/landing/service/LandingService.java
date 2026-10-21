@@ -10,6 +10,12 @@ import uz.urspi.newurspi.faculty.response.FacultyLocalizedResponse;
 import uz.urspi.newurspi.facultystaff.response.FacultyStaffLocalizedResponse;
 import uz.urspi.newurspi.greeninstitute.response.GreenInstituteLocalizedResponse;
 import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuCategoryLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfoLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfosPageResponse;
+import uz.urspi.newurspi.menu.response.MenuLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuMaterialLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuSubCategoryLocalizedResponse;
 import uz.urspi.newurspi.news.response.NewsLocalizedResponse;
 import uz.urspi.newurspi.photogallery.response.PhotoGalleryLocalizedResponse;
 import uz.urspi.newurspi.rental.response.RentalLocalizedResponse;
@@ -75,4 +81,18 @@ public interface LandingService {
     PageResponse<GreenInstituteLocalizedResponse> greenInstitutes(Language lang, Pageable pageable);
 
     GreenInstituteLocalizedResponse greenInstituteById(Long id, Language lang);
+
+    List<MenuLocalizedResponse> menus(Language lang);
+
+    List<MenuCategoryLocalizedResponse> menuCategories(Long menuId, Language lang);
+
+    List<MenuSubCategoryLocalizedResponse> menuSubCategories(Long categoryId, Language lang);
+
+    MenuSubCategoryLocalizedResponse menuSubCategoryById(Long id, Language lang);
+
+    MenuInfosPageResponse menuInfosBySubCategory(Long subCategoryId, Language lang, Pageable pageable);
+
+    MenuInfoLocalizedResponse menuInfoById(Long id, Language lang);
+
+    PageResponse<MenuMaterialLocalizedResponse> menuMaterials(Long infoId, Integer year, Language lang, Pageable pageable);
 }

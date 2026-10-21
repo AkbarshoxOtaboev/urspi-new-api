@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import uz.urspi.newurspi.hemis.exception.HemisApiException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -75,6 +76,14 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ){
         return buildResponse(ex.getMessage(), HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler(HemisApiException.class)
+    public ResponseEntity<ErrorResponse> handleHemisApi(
+            HemisApiException ex,
+            HttpServletRequest request
+    ) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_GATEWAY, request);
     }
 
     @ExceptionHandler(UserDisabledException.class)

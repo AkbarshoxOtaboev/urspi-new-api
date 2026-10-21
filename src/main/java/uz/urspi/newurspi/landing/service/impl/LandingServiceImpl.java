@@ -44,6 +44,24 @@ import uz.urspi.newurspi.leader.Leader;
 import uz.urspi.newurspi.leader.mapper.LeaderMapper;
 import uz.urspi.newurspi.leader.repository.LeaderRepository;
 import uz.urspi.newurspi.leader.response.LeaderLocalizedResponse;
+import uz.urspi.newurspi.menu.Menu;
+import uz.urspi.newurspi.menu.MenuCategory;
+import uz.urspi.newurspi.menu.MenuContentType;
+import uz.urspi.newurspi.menu.MenuInfo;
+import uz.urspi.newurspi.menu.MenuMaterial;
+import uz.urspi.newurspi.menu.MenuSubCategory;
+import uz.urspi.newurspi.menu.mapper.MenuMapper;
+import uz.urspi.newurspi.menu.repository.MenuCategoryRepository;
+import uz.urspi.newurspi.menu.repository.MenuInfoRepository;
+import uz.urspi.newurspi.menu.repository.MenuMaterialRepository;
+import uz.urspi.newurspi.menu.repository.MenuRepository;
+import uz.urspi.newurspi.menu.repository.MenuSubCategoryRepository;
+import uz.urspi.newurspi.menu.response.MenuCategoryLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfoLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuInfosPageResponse;
+import uz.urspi.newurspi.menu.response.MenuLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuMaterialLocalizedResponse;
+import uz.urspi.newurspi.menu.response.MenuSubCategoryLocalizedResponse;
 import uz.urspi.newurspi.news.News;
 import uz.urspi.newurspi.news.mapper.NewsMapper;
 import uz.urspi.newurspi.news.repository.NewsRepository;
@@ -67,6 +85,7 @@ import uz.urspi.newurspi.utils.Language;
 import uz.urspi.newurspi.utils.PageResponse;
 import uz.urspi.newurspi.utils.Status;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -74,6 +93,12 @@ import java.util.List;
 @Transactional
 public class LandingServiceImpl implements LandingService {
 
+    private final MenuRepository menuRepository;
+    private final MenuCategoryRepository menuCategoryRepository;
+    private final MenuSubCategoryRepository menuSubCategoryRepository;
+    private final MenuInfoRepository menuInfoRepository;
+    private final MenuMaterialRepository menuMaterialRepository;
+    private final MenuMapper menuMapper;
     private final NewsRepository newsRepository;
     private final NewsMapper newsMapper;
     private final AnnouncementRepository announcementRepository;
@@ -303,6 +328,93 @@ public class LandingServiceImpl implements LandingService {
         GreenInstitute item = greenInstituteRepository.findByIdAndStatus(id, Status.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Green institute not found with id = " + id));
         return greenInstituteMapper.toLocalizedResponse(item, lang);
+    }
+
+    @Override
+    public List<MenuLocalizedResponse> menus(Language lang) {
+        List<Menu> menus = menuRepository.findAllByStatusOrderBySortOrderAscIdAsc(Status.ACTIVE);
+        return menuMapper.toMenuLocalizedList(menus, lang);
+    }
+
+    @Override
+    public List<MenuCategoryLocalizedResponse> menuCategories(Long menuId, Language lang) {
+        menuRepository.findByIdAndStatus(menuId, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu not found with id = " + menuId));
+        return menuMapper.toCategoryLocalizedList(
+                menuCategoryRepository.findAllByMenuIdAndStatusOrderBySortOrderAscIdAsc(menuId, Status.ACTIVE),
+                lang
+        );
+    }
+
+    @Override
+    public List<MenuSubCategoryLocalizedResponse> menuSubCategories(Long categoryId, Language lang) {
+        menuCategoryRepository.findByIdAndStatus(categoryId, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu category not found with id = " + categoryId));
+        return menuMapper.toSubCategoryLocalizedList(
+                menuSubCategoryRepository.findAllByCategoryIdAndStatusOrderBySortOrderAscIdAsc(categoryId, Status.ACTIVE),
+                lang
+        );
+    }
+
+    @Override
+    public MenuSubCategoryLocalizedResponse menuSubCategoryById(Long id, Language lang) {
+        MenuSubCategory sub = menuSubCategoryRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu subcategory not found with id = " + id));
+        return menuMapper.toLocalized(sub, lang);
+    }
+
+    @Override
+    public MenuInfosPageResponse menuInfosBySubCategory(Long subCategoryId, Language lang, Pageable pageable) {
+        MenuSubCategory sub = menuSubCategoryRepository.findByIdAndStatus(subCategoryId, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu subcategory not found with id = " + subCategoryId));
+        MenuSubCategoryLocalizedResponse subLocalized = menuMapper.toLocalized(sub, lang);
+        if (sub.getContentType() == MenuContentType.LINK) {
+            return MenuInfosPageResponse.builder()
+                    .subCategory(subLocalized)
+                    .contentType(sub.getContentType())
+                    .linkPath(sub.getLinkPath())
+                    .linkTargetType(sub.getLinkTargetType())
+                    .infos(Collections.emptyList())
+                    .totalElements(0)
+                    .totalPages(0)
+                    .number(pageable.getPageNumber())
+                    .size(pageable.getPageSize())
+                    .build();
+        }
+        Page<MenuInfo> page = menuInfoRepository.findAllBySubCategoryIdAndStatusOrderByCreatedAtDesc(
+                subCategoryId, Status.ACTIVE, unsorted(pageable));
+        return MenuInfosPageResponse.builder()
+                .subCategory(subLocalized)
+                .contentType(sub.getContentType())
+                .linkPath(null)
+                .linkTargetType(null)
+                .infos(menuMapper.toInfoLocalizedList(page.getContent(), lang))
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .number(page.getNumber())
+                .size(page.getSize())
+                .build();
+    }
+
+    @Override
+    public MenuInfoLocalizedResponse menuInfoById(Long id, Language lang) {
+        MenuInfo info = menuInfoRepository.findByIdAndStatus(id, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu info not found with id = " + id));
+        List<Integer> years = menuMaterialRepository.findDistinctYearsByInfoId(id, Status.ACTIVE);
+        return menuMapper.toLocalized(info, lang, years);
+    }
+
+    @Override
+    public PageResponse<MenuMaterialLocalizedResponse> menuMaterials(
+            Long infoId, Integer year, Language lang, Pageable pageable
+    ) {
+        menuInfoRepository.findByIdAndStatus(infoId, Status.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Menu info not found with id = " + infoId));
+        Pageable p = unsorted(pageable);
+        Page<MenuMaterial> page = year == null
+                ? menuMaterialRepository.findAllByInfoIdAndStatusOrderByCreatedAtDesc(infoId, Status.ACTIVE, p)
+                : menuMaterialRepository.findAllByInfoIdAndYearAndStatusOrderByCreatedAtDesc(infoId, year, Status.ACTIVE, p);
+        return PageResponse.of(page, menuMapper.toMaterialLocalizedList(page.getContent(), lang));
     }
 
     /**
