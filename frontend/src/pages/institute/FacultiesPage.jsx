@@ -1,0 +1,188 @@
+import React, { useState, useEffect } from 'react'
+import { ChevronRight, Users, Layers, ChevronDown } from 'lucide-react'
+import { BsInfoCircle } from 'react-icons/bs'
+import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import facultyImg from '../../assets/images/logo1.jpg'
+import { facultiesAPI, departmentsAPI, getFileUrl, localizedField } from '../../api'
+
+
+
+const FacultyCard = ({ faculty }) => {
+  const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="w-full bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:shadow-slate-300/60 hover:-translate-y-0.5">
+      <div className="w-full flex flex-col xl:flex-row items-start p-5 gap-5 xl:gap-6 flex-1">
+        {/* Left: Image Frame */}
+        <div className="w-full xl:w-[180px] shrink-0 self-start flex justify-center mt-2 xl:mt-4">
+          <div className="w-[150px] sm:w-[180px] aspect-square rounded-full overflow-hidden mx-auto xl:mx-0 shadow-sm border border-slate-100">
+            <img
+              src={faculty.logo || facultyImg}
+              alt={faculty.name}
+              className="w-full h-full object-cover rounded-full object-center"
+              onError={(e) => { e.target.onerror = null; e.target.src = facultyImg; }}
+            />
+          </div>
+        </div>
+
+        {/* Right: Content */}
+        <div className="w-full flex flex-col justify-start flex-1 h-full">
+          <div className="mb-4 text-center xl:text-left">
+            <span className="inline-block px-3 py-1.5 rounded-full bg-blue-50/50 text-[#3b82f6] border border-blue-200/60 text-[12px] font-semibold mb-3 leading-tight">
+              {t('common.faculty')}
+            </span>
+            <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0c1f4a] uppercase tracking-tight leading-tight">
+              {faculty.name}
+            </h3>
+          </div>
+
+          <div className="mt-auto pt-2 space-y-2">
+            <Link to={`/faculty-staff/${faculty.id}`} state={{ faculty }} className="flex items-center justify-center xl:justify-start gap-2 w-full px-4 py-2 bg-blue-50 text-[#0c1f4a] font-semibold text-[13px] rounded-xl hover:bg-[#0c1f4a] hover:text-white transition-all duration-300 border border-blue-100 shadow-sm active:scale-95">
+              <Users size={16} />
+              {t('common.staff')}
+            </Link>
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center justify-center xl:justify-start gap-2 w-full px-4 py-2 bg-blue-50 text-[#0c1f4a] font-semibold text-[13px] rounded-xl hover:bg-[#0c1f4a] hover:text-white transition-all duration-300 border border-blue-100 shadow-sm active:scale-95"
+            >
+              <Layers size={16} />
+              {t('common.departments')}
+              <ChevronDown size={16} className={`ml-auto transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <Link to="/faculty-about" state={{ faculty }} className="flex items-center justify-center xl:justify-start gap-2 w-full px-4 py-2 bg-blue-50 text-[#0c1f4a] font-semibold text-[13px] rounded-xl hover:bg-[#0c1f4a] hover:text-white transition-all duration-300 border border-blue-100 shadow-sm active:scale-95">
+              <BsInfoCircle size={16} />
+              {t('home.carousel.details')}
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Departments Dropdown */}
+      <div 
+        className={`w-full overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[800px] border-t border-slate-100 opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <div className="p-5 bg-slate-50/50 flex flex-col gap-2">
+          {faculty.departments?.map((dep, idx) => (
+            <Link to={`/department-staff?id=${dep.id || ''}`} state={{ department: dep, faculty }} key={idx} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="mt-0.5 text-blue-500 group-hover:text-blue-600 transition-colors">
+                <ChevronRight size={16} />
+              </div>
+              <span className="text-[13px] text-slate-700 font-medium group-hover:text-[#0c1f4a] transition-colors leading-tight">
+                {typeof dep === 'string' ? dep : dep.name}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function FacultiesPage() {
+  const { t, i18n } = useTranslation();
+  const [facultiesList, setFacultiesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFaculties = async () => {
+      setLoading(true);
+      const lang = i18n.language || 'uz';
+      try {
+        const [facRes, deptRes] = await Promise.allSettled([
+          facultiesAPI.getLanding(0, 50, lang),
+          departmentsAPI.getLanding(0, 50, lang)
+        ]);
+
+        const rawFac = facRes.status === 'fulfilled' ? (Array.isArray(facRes.value) ? facRes.value : facRes.value?.data?.content || (Array.isArray(facRes.value?.data) ? facRes.value.data : facRes.value?.content || [])) : [];
+        const rawDept = deptRes.status === 'fulfilled' ? (Array.isArray(deptRes.value) ? deptRes.value : deptRes.value?.data?.content || (Array.isArray(deptRes.value?.data) ? deptRes.value.data : deptRes.value?.content || [])) : [];
+
+        const formatted = rawFac.map(fac => {
+          const facName = localizedField(fac, 'name', lang, "FAKULTET");
+          const desc = localizedField(fac, 'description', lang, "");
+
+          const facDepts = rawDept
+            .filter(d => {
+              const dFacId = d.faculty?.id != null ? d.faculty.id : d.facultyId;
+              const matchesId = dFacId != null && String(dFacId) === String(fac.id);
+              const matchesName = (d.faculty?.name && d.faculty.name === fac.name) || (typeof d.faculty === 'string' && d.faculty === fac.name);
+              return matchesId || matchesName;
+            })
+            .map(d => ({
+              ...d,
+              id: d.id,
+              name: localizedField(d, 'name', lang, d.name || "Kafedra")
+            }));
+
+          return {
+            id: fac.id,
+            name: facName,
+            description: desc,
+            logo: getFileUrl(fac.logoLink || fac.logo) || facultyImg,
+            departments: facDepts
+          };
+        });
+        if (isMounted) {
+          setFacultiesList(formatted);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.warn('Failed to load landing faculties from API:', err.message);
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchFaculties();
+    return () => { isMounted = false; };
+  }, [i18n.language]);
+
+  return (
+    <div className="flex-grow bg-slate-50 flex flex-col min-h-[calc(100vh-200px)]">
+      {/* Header Banner */}
+      <div className="w-full bg-[#0c1f4a] py-6 md:py-8">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto w-full">
+          <nav className="flex text-sm text-white/80" aria-label="Breadcrumb">
+            <ol className="inline-flex items-center space-x-1 md:space-x-3">
+              <li className="inline-flex items-center">
+                <Link to="/" className="hover:text-white transition-colors">
+                  {t('common.home')}
+                </Link>
+              </li>
+              <li>
+                <div className="flex items-center">
+                  <ChevronRight className="w-4 h-4 mx-1" />
+                  <span className="text-white font-medium">{t('common.faculties')}</span>
+                </div>
+              </li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      <div className="py-10 flex flex-col flex-grow">
+        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
+
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#0c1f4a]">{t('common.faculties')}</h1>
+            <p className="text-slate-500 mt-3 max-w-2xl mx-auto">Urganch davlat pedagogika institutidagi mavjud fakultetlar va ularning tuzilmasi bilan tanishing.</p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8 items-start">
+              {facultiesList.map(faculty => (
+                <FacultyCard key={faculty.id} faculty={faculty} />
+              ))}
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  )
+}

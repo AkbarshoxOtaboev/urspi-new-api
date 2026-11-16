@@ -1,0 +1,201 @@
+/**
+ * Central API Client and Token Helpers
+ */
+
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+export const getAuthToken = () => localStorage.getItem('urspi_access_token') || '';
+export const getRefreshToken = () => localStorage.getItem('urspi_refresh_token') || '';
+
+// Loading state manager for active API requests
+let activeRequestsCount = 0;
+const loadingSubscribers = new Set();
+
+export const subscribeToLoading = (callback) => {
+    loadingSubscribers.add(callback);
+    callback(activeRequestsCount > 0);
+    return () => {
+        loadingSubscribers.delete(callback);
+    };
+};
+
+const notifyLoadingState = () => {
+    const isLoading = activeRequestsCount > 0;
+    loadingSubscribers.forEach((cb) => {
+        try {
+            cb(isLoading);
+        } catch (e) {
+            console.error('Error in loading subscriber:', e);
+        }
+    });
+};
+
+export const startLoading = () => {
+    activeRequestsCount++;
+    notifyLoadingState();
+};
+
+export const stopLoading = () => {
+    activeRequestsCount = Math.max(0, activeRequestsCount - 1);
+    notifyLoadingState();
+};
+
+export const setTokens = (accessToken, refreshToken) => {
+    if (accessToken) localStorage.setItem('urspi_access_token', accessToken);
+    if (refreshToken) localStorage.setItem('urspi_refresh_token', refreshToken);
+};
+
+export const clearTokens = () => {
+    localStorage.removeItem('urspi_access_token');
+    localStorage.removeItem('urspi_refresh_token');
+    try {
+        [
+            'urspi_department_users',
+            'urspi_user_custom_permissions',
+            'urspi_cached_role_permissions_map',
+            'urspi_user_permissions',
+            'urspi_cached_system_permissions',
+            'urspi_cached_roles',
+            'urspi_current_user',
+            'urspi_current_username',
+            'urspi_current_roles',
+            'dashboard-active-tab',
+            'dashboard-dark'
+        ].forEach(k => localStorage.removeItem(k));
+    } catch (e) {}
+};
+
+// Immediate cleanup of any mock/custom localStorage data on module load
+try {
+    [
+        'urspi_department_users',
+        'urspi_user_custom_permissions',
+        'urspi_cached_role_permissions_map',
+        'urspi_user_permissions',
+        'urspi_cached_system_permissions',
+        'urspi_cached_roles',
+        'urspi_current_user',
+        'urspi_current_username',
+        'urspi_current_roles',
+        'dashboard-active-tab',
+        'dashboard-dark'
+    ].forEach(k => localStorage.removeItem(k));
+} catch (e) {}
+
+/**
+ * Resolves full image/file URL from backend file paths or filenames
+ */
+export const getFileUrl = (link) => {
+    if (!link) return '';
+    if (typeof link === 'object') {
+        link = link.link || link.url || link.path || link.filePath || link.fileName || link.fileLink || link.photoLink || link.imageLink || '';
+    }
+    if (typeof link !== 'string') {
+        link = String(link);
+    }
+    link = link.trim();
+    if (!link || link === '[object Object]' || link === 'undefined' || link === 'null') return '';
+    if (link.startsWith('http://') || link.startsWith('https://') || link.startsWith('data:') || link.startsWith('blob:')) {
+        return link;
+    }
+    if (link.startsWith('/api/files/')) {
+        return `${BASE_URL}${link}`;
+    }
+    if (link.startsWith('/')) {
+        return `${BASE_URL}${link}`;
+    }
+    return `${BASE_URL}/api/files/${link}`;
+};
+
+/**
+ * Central API request helper
+ */
+export async function request(endpoint, options = {}) {
+    startLoading();
+    try {
+        const token = getAuthToken();
+        const headers = options.headers ? { ...options.headers } : {};
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        let body = options.body;
+        if (body && typeof body === 'object' && !(body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+            body = JSON.stringify(body);
+        }
+
+        const config = {
+            method: options.method || 'GET',
+            headers,
+            body,
+        };
+
+        let response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+        // Handle 401 (Invalid/expired token)
+        if (response.status === 401 && endpoint !== '/api/auth/login' && endpoint !== '/api/auth/refresh') {
+            let retried = false;
+            if (getRefreshToken()) {
+                try {
+                    const refreshRes = await fetch(`${BASE_URL}/api/auth/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: getRefreshToken() })
+                    });
+                    if (refreshRes.ok) {
+                        const refreshData = await refreshRes.json();
+                        if (refreshData.accessToken) {
+                            setTokens(refreshData.accessToken, refreshData.refreshToken);
+                            config.headers['Authorization'] = `Bearer ${refreshData.accessToken}`;
+                            response = await fetch(`${BASE_URL}${endpoint}`, config);
+                            retried = true;
+                        }
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }
+
+            if (!retried) {
+                clearTokens();
+                // If GET request, retry without invalid token for public endpoints
+                if ((options.method || 'GET').toUpperCase() === 'GET') {
+                    delete config.headers['Authorization'];
+                    response = await fetch(`${BASE_URL}${endpoint}`, config);
+                }
+            }
+        }
+
+        if (!response.ok) {
+            let errorMessage = `HTTP Error ${response.status}`;
+            try {
+                const errJson = await response.json();
+                if (Array.isArray(errJson.errors) && errJson.errors.length > 0) {
+                    errorMessage = errJson.errors.map((e) => e.message || e.defaultMessage || e.field).join(', ');
+                } else if (errJson.message) {
+                    errorMessage = errJson.message;
+                } else if (errJson.error) {
+                    errorMessage = errJson.error;
+                }
+                if (response.status === 401) {
+                    errorMessage = 'Avtorizatsiya talab qilinadi. /admin sahifasidan qayta kiring.';
+                } else if (response.status === 403) {
+                    errorMessage = errorMessage || 'Bu amal uchun ruxsatingiz yo\'q.';
+                }
+            } catch (e) {
+                // ignore parsing error
+            }
+            throw new Error(errorMessage);
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return await response.json();
+        }
+        return await response.text();
+    } finally {
+        stopLoading();
+    }
+}

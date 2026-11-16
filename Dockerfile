@@ -1,10 +1,24 @@
+# ---------- Frontend (Vite/React) ----------
+FROM node:22-alpine AS frontend
+WORKDIR /frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+# ---------- Backend (Maven/Spring Boot) ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
 COPY pom.xml .
 COPY src src
+COPY --from=frontend /frontend/dist/ src/main/resources/static/
+
 RUN mvn -q -B -DskipTests package
 
+# ---------- Runtime ----------
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 

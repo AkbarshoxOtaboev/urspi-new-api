@@ -52,8 +52,10 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/public/**"
                         ).permitAll()
-                        .anyRequest()
-                        .authenticated()
+                        // Protected admin/API endpoints
+                        .requestMatchers("/api/**").authenticated()
+                        // React SPA static assets + client-side routes
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

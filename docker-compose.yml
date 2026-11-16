@@ -4,8 +4,9 @@
 #   nano .env
 #   docker compose up -d --build
 #
-# API: http://<server-ip>:8080
+# Site + API (birga): http://<server-ip>:8080
 # Swagger: http://<server-ip>:8080/swagger-ui.html
+# Dockerfile frontend (Vite) ni build qilib Spring static ga joylaydi.
 
 services:
   postgres:

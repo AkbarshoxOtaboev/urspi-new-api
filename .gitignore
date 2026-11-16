@@ -37,3 +37,8 @@ build/
 .env.local
 uploads/
 application-local.yml
+
+### Frontend ###
+frontend/node_modules/
+frontend/dist/
+src/main/resources/static/

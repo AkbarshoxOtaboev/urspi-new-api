@@ -1,0 +1,142 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ChevronRight } from 'lucide-react';
+import { FaRegCalendarAlt } from 'react-icons/fa';
+import { announcementsAPI, getFileUrl, localizedField, formatAuthor } from '../../api';
+
+export default function AnnouncementDetailPage() {
+    const { id } = useParams();
+    const { t, i18n } = useTranslation();
+
+    const [announcement, setAnnouncement] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+        const fetchDetail = async () => {
+            if (!id) return;
+            setLoading(true);
+            let data = null;
+            const lang = i18n.language || 'uz';
+            try {
+                const res = await announcementsAPI.getLandingById(id, lang);
+                data = res?.data || res;
+            } catch (err) {
+                console.warn('Failed to fetch landing announcement detail from API:', err.message);
+                try {
+                    const res = await announcementsAPI.getById(id);
+                    data = res?.data || res;
+                } catch (e) {
+                    console.warn('Failed to fetch fallback announcement detail from API:', e.message);
+                }
+            }
+
+            if (isMounted && data) {
+                const title = localizedField(data, 'title', lang, "E'lon");
+                const content = localizedField(data, 'content', lang, "");
+
+                setAnnouncement({
+                    id: data.id,
+                    title,
+                    author: data.author || '',
+                    date: data.createdAt ? new Date(data.createdAt).toLocaleDateString('uz-UZ') : (data.date || "2026-08-21"),
+                    content,
+                    address: data.address || "Urganch davlat pedagogika instituti",
+                    tel: data.tel || "+998 62 224 81 11",
+                    fax: data.fax || "",
+                    email: data.email || "info@urspi.uz",
+                    image: getFileUrl(data.imageLink || data.image)
+                });
+            }
+            if (isMounted) setLoading(false);
+        };
+
+        fetchDetail();
+        return () => { isMounted = false; };
+    }, [id, i18n.language]);
+
+    if (loading) {
+        return <main className="flex-1 bg-slate-50 py-16 text-center text-slate-500 font-medium">Yuklanmoqda...</main>;
+    }
+
+    if (!announcement) {
+        return <main className="flex-1 bg-slate-50 py-16 text-center text-slate-500 font-medium">E'lon topilmadi</main>;
+    }
+
+    return (
+        <main className="flex-1 bg-slate-50 pb-16">
+            {/* Header Banner */}
+            <div className="w-full bg-[#0c1f4a] py-8 md:py-12 flex flex-col justify-center">
+                <div className="px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto w-full">
+                    <h1 className="text-3xl font-bold text-white mb-4">{t('common.announcements')}</h1>
+                    <nav className="flex text-sm text-white/80" aria-label="Breadcrumb">
+                        <ol className="inline-flex items-center space-x-1 md:space-x-2 whitespace-nowrap overflow-hidden text-ellipsis">
+                            <li className="inline-flex items-center shrink-0">
+                                <Link to="/" className="hover:text-white transition-colors">
+                                    {t('common.home')}
+                                </Link>
+                            </li>
+                            <li className="shrink-0">
+                                <div className="flex items-center">
+                                    <ChevronRight className="w-4 h-4 mx-1" />
+                                    <Link to="/announcements" className="hover:text-white transition-colors">
+                                        {t('common.announcements')}
+                                    </Link>
+                                </div>
+                            </li>
+                            <li className="truncate">
+                                <div className="flex items-center truncate">
+                                    <ChevronRight className="w-4 h-4 mx-1 shrink-0" />
+                                    <span className="text-white font-medium truncate">{announcement.title}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            {/* Content Card */}
+            <div className="px-4 sm:px-6 lg:px-8 max-w-[1200px] mx-auto py-8">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200/60 p-6 md:p-10">
+                    
+                    {announcement.image && (
+                        <div className="relative w-full aspect-[16/9] md:aspect-[2/1] rounded-xl overflow-hidden mb-8">
+                            <img 
+                                src={announcement.image} 
+                                alt={announcement.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
+
+                    {/* Date Badge */}
+                    <div className="inline-flex items-center px-4 py-2 rounded-md border border-gray-200 text-blue-600 font-medium mb-6">
+                        <FaRegCalendarAlt className="mr-2" />
+                        {announcement.date}
+                    </div>
+
+                    {/* Title */}
+                    <h2 className="text-xl md:text-2xl font-semibold text-[#0c1f4a] leading-snug mb-6">
+                        {announcement.title}
+                    </h2>
+
+                    {/* Divider */}
+                    <hr className="border-gray-200 mb-6" />
+
+                    {/* Body Text */}
+                    <div className="text-gray-700 leading-relaxed space-y-4 text-[15px] whitespace-pre-wrap">
+                        {announcement.content}
+                    </div>
+
+                    {/* Attribution / Matbuot xizmati */}
+                    <div className="mt-8 pt-6 border-t border-gray-200/80 flex items-center justify-end">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-700 bg-slate-100/90 px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                            {formatAuthor(announcement.author, t)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
+}
